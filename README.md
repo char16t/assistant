@@ -1,3 +1,14 @@
+Server setup:
+
+1. Install JRE
+```
+sudo apt install default-jre
+```
+2. Check
+```
+java -version
+```
+
 How to:
 
 1. Create new account for your bot at Trello: https://trello.com/signup
