@@ -8,24 +8,25 @@ How to:
 6. Create board "Next"
 7. Create columns for "Next" board: "To Do", "Done"
 8. Add your bot to members at "Next" board with "Normal" rights
-9. Get Developer API Keys for your bot: https://trello.com/app-key
-10. Fill app key and put to your browser to get Token for your bot: 
+9. Login to your bot account
+10. Get Developer API Keys for your bot: https://trello.com/app-key
+11. Fill app key and put to your browser to get Token for your bot: 
 ```
 https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<PUT_YOUR_APP_KEY_HERE>
 ```
-11. Fill app key and token and get ids for your "Current" and "Next" boards:
+12. Fill app key and token and get ids for your "Current" and "Next" boards:
 ```
 https://api.trello.com/1/members/me/boards?key=<PUT_APP_KEY>&token=<PUT_TOKEN>
 ```
-12. Fill app key, token and "Current" board id and get columns ids for "Current" board:
+13. Fill app key, token and "Current" board id and get columns ids for "Current" board:
 ```
 https://api.trello.com/1/boards/<PUT_CURRENT_BOARD_ID>/lists?key=<PUT_APP_KEY>&token=<PUT_TOKEN>
 ```
-13. Fill app key, token and "Next" board id and get columns ids for "Next" board:
+14. Fill app key, token and "Next" board id and get columns ids for "Next" board:
 ```
 https://api.trello.com/1/boards/<PUT_NEXT_BOARD_ID>/lists?key=<PUT_APP_KEY>&token=<PUT_TOKEN>
 ```
-14. Fill configuration
+15. Fill configuration
 ```
 assistant {
   trello {
