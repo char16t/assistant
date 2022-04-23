@@ -341,7 +341,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
   "id": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "description": "Assistant's Webhook for Daily board",
   "idModel": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "callbackURL": "http://assistant.manenkov.com:8080/api/trello/receive_webhook",
+  "callbackURL": "http://yourserver.com/api/trello/receive_webhook",
   "active": true,
   "consecutiveFailures": 0,
   "firstConsecutiveFailDate": null
@@ -368,7 +368,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
   "id": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "description": "Assistant's Webhook for Daily Next board",
   "idModel": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "callbackURL": "http://assistant.manenkov.com:8080/api/trello/receive_webhook",
+  "callbackURL": "http://yourserver.com/api/trello/receive_webhook",
   "active": true,
   "consecutiveFailures": 0,
   "firstConsecutiveFailDate": null
