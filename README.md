@@ -1,51 +1,50 @@
-# Ассистент
+# Assistant
 
-Ассистент &mdash; это бот для Trello, который помогает поддерживать Канбан-доски в Trello в актуальном состоянии.
+Assistant is a bot for Trello, that helps keep Kanban-boards at Trello up to date.
 
 ![Assistant Demo](/docs/assistant.gif)
 
-Автоматизированные действия:
+Automated actions:
 
-* Ежедневный перенос карточек по столбцам "Сегодня", "Завтра", "На этой неделе", "В этом месяце"
-* Обновление крайнего срока на карточке при переносе между столбцами. Например, при переносе карточки в столбец "Сегодня" будет автоматически установлен крайний срок как "сегодня 23:59", а при переносе карточки в стобец "На этой неделе" будет установлен крайний срок "ближайшее воскресенье 23:59"
-* Контроль лимитов карточек в столбцах: если лимит карточек в столбце превышен, то переместить туда новую карточку не получится, она вернется в исходный столбец с поясняющим комментарием внутри
-* При создании карточки, она сразу же назначается на владельца доски и на ней устанавливается крайний срок в соответствии со столбцом, в котором она создана
-* Все просроченные карточки переносятся в столбец "Сегодня"
-* При простановке флажка "завершено" на крайнем сроке карточки, она автоматически переносится в столбец "Сделано" на самый верх
-* При перемещении карточки в столбец "Сделано" проставляется флаг "завершено" на крайнем сроке и снимается,
-  когда карточка перемещается из столбца "Сделано" в другой
-* При удалении флажка "завершено" на крайнем сроке карточки, она автоматически переносится в столбец "Сегодня"
-* Карточки со сроками в следюущем месяце и далее, автоматически переносятся на основную доску, когда подходит их срок
+* Daily transfer of cards by columns "Today", "Tomorrow", "This week", "This month"
+* Updating the due date on the card when transferring between columns. For example, when transferring the card to the "Today" column, the due date will be automatically set as "today 23:59", and when transferring the card to the "This week" column, the due date "next Sunday 23:59" will be set
+* Control of card limits in columns: if the card limit in a column is exceeded, it will not be possible to move a new card there, it will return to the original column with an explanatory comment inside
+* When creating a card, it is immediately assigned to the owner of the board and a due date is set on it in accordance with the column in which it was created
+* All expired cards are transferred to the "Today" column
+* When the "completed" checkbox is placed on the due date of the card, it is automatically transferred to the "Done" column at the top
+* When moving a card to the "Done" column, the "completed" flag is set to due date and removed when the card is moved from the "Done" column to another
+* When you delete the "completed" checkbox on the due date of the card, it is automatically transferred to the "Today" column
+* Cards with due dates in the next month and beyond are automatically transferred to the main board when their due dates are comes
 
-Все действия выполняются от пользователя ассистента Trello, поэтому в истории действий карточек и доски видно, что было сделано вручную, а что автоматически. Так как Ассистент при активном использовании генерирует очень много действий и на каждое из них приходит уведомление, реализован механизм отписки от карточки и подписке заново до и после каждого действия.
+All actions are performed by the assistant user, so in the history of the actions on cards and on the board you can see what was done manually and what was done automatically. Since the Assistant generates a lot of actions during active use and a notification arrives for each of them, a mechanism for unsubscribing from the card and subscribing again before and after each action is implemented.
 
-## Содержание
+## Table of Contents
 
-* [Обзор](#обзор)
-* [Установка](#установка)
-    * [Подготовка сервера](#подготовка-сервера)
+* [Overview](#overview)
+* [Installation](#installation)
+    * [Server preparation](#server-preparation)
         * [Java Runtime Environment](#java-runtime-environment)
         * [PostgreSQL](#postgresql)
         * [CRON](#cron)
-    * [Подготовка Trello](#подготовка-trello)
-        * [Аккаунты](#аккаунты)
-        * [Доски](#доски)
-        * [Ключи вызова REST API](#ключи-вызова-rest-api)
-    * [Конфигурация Ассистента](#конфигурация-ассистента)
-    * [Сборка приложения Ассистента](#сборка-приложения-ассистента)
+    * [Trello preparation](#trello-preparation)
+        * [Accounts](#accounts)
+        * [Boards](#boards)
+        * [REST API keys](#rest-api-keys)
+    * [Assistant configuration](#assistant-configuration)
+    * [Building Assistant](#building-assistant)
     * [Webhooks](#webhooks)
 
-## Обзор
+## Overview
 
-Ассистент написан на Scala, компилируется в исполняемый JAR-файл и должен быть развёрнут на сервере. Взаимодействие с Trello происходит через [REST API](https://developer.atlassian.com/cloud/trello/rest/) и [Webhooks](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/).
+The assistant is written in Scala, compiled into an executable JAR file and must be deployed on the server. Interaction with Trello takes place through the [REST API](https://developer.atlassian.com/cloud/trello/rest/) and [Webhooks](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/).
 
-## Установка
+## Installation
 
-### Подготовка сервера
+### Server preparation
 
 #### Java Runtime Environment
 
-Вы можете использовать сервер с Ubuntu 20.04 или выше. Нужно установить JRE и открыть порт.
+You can use a server with Ubuntu 20.04 or higher. You need to install the JRE and open the port.
 
 ```sh
 # Install JRE
@@ -60,8 +59,7 @@ sudo ufw allow 8080
 
 #### PostgreSQL
 
-Вы можете использовать сервер с Ubuntu 20.04 или выше. Нужно установить сервер PostgreSQL, 
-создать пароль для пользователя `postgres` и создать базу данных `assistant`.
+You can use a server with Ubuntu 20.04 or higher. You need to install a PostgreSQL server, create a password for the user `postgres` and create a database `assistant'.
 
 ```sh
 # Update indexes
@@ -90,102 +88,102 @@ createdb assistant
 
 #### CRON
 
-Временная мера, автоматический ежедневный перенос карточек по столбцам. Добавьте это в cron (`crontab -e`):
+Temporary ad-hoc, automatic daily transfer of cards by columns. Add this to cron (`crontab -e`):
 
 ```
 0 0 * * * curl http://yourserver.com/api/trello/organize_cards
 ```
 
-### Подготовка Trello
+### Trello preparation
 
-#### Аккаунты
+#### Accounts
 
-Для работы вам понадобится два аккаунта Trello: личный и для ассистента. Если у вас нет личного аккаунта Trello, [создайте его](https://trello.com/signup), затем создайте аккаунт для ассистента.
+To work, you will need two Trello accounts: personal and for an assistant. If you don't have a personal Trello account, [create one](https://trello.com/signup), then create an account for the assistant.
 
-1. [Создайте личный аккаунт в Трелло](https://trello.com/signup) (если необходимо)
-2. [Создайте аккаунт для ассистента в Трелло](https://trello.com/signup), загрузите аватарку и отключите в настройках уведомления на электронную почту
+1. [Create a personal account in Trello](https://trello.com/signup) (if necessary)
+2. [Create an account for assistant in Trello](https://trello.com/signup), upload avatar and disable email notifications in the settings
 
-#### Доски
+#### Boards
 
-Из подвашего личого аккаунта Трелло потребуется создать две доски "Текущая" и "Следующая". Вы можете назвать их как угодно, но в этой инструкции будут использоваться такие названия.
+In your personal Trello account you will need to create two boards "Current" and "Next". You can call them whatever you want, but in this manual such names will be used.
 
-1. Залогиньтесь в свой личный аккаунт Trello
-2. Создайте доску "Текущая"
-3. Для доски "Текущая" создайте столбцы "Сделать", "На этой неделе", "Завтра", "Сегодня", "В процессе", "Делегировано", "Сделано"
-4. Добавьте пользователя Ассистента на доску "Текущая" с обычными (Normal) правами
-5. Создайте доску "Следующая"
-6. Для доски "Следующая" создайте столбцы "Сделать" и "Сделано"
-7. Добавьте пользователя Ассистента на доску "Следующая" с обычными (Normal) правами
+1. Log in to your personal Trello account
+2. Create a "Current" board
+3. In the "Current" board create the columns "To Do", "This week", "Tomorrow", "Today", "In progress", "Delegated", "Done"
+4. Add an Assistant user to the "Current" board with normal rights
+5. Create a "Next" board
+6. In the "Next" board create the "To Do" and "Done" columns
+7. Add an Assistant user to the "Next" board with normal rights
 
-#### Ключи вызова REST API
+#### REST API keys
 
-Вызов API возможен из-под авторизованного пользователя. Для этого потребуется токен и ключ приложения.
+The API call is possible by an authorized user. To do this you will need a token and an application key.
 
-Как было отмечено выше, при активном использовании ассистент генерирует очень много действий, каждое из которых генерирует уведомление. Чтобы избежать этого, приходится отписываться от уведомлений карточки до действия и подписываться на неё после каждого действия. Отписку и подписку приходится делать из-под личного пользователя, так что нужно получить токен и ключ приложения для личного пользователя и для пользователя Ассистента.
+As noted above, when actively used the assistant generates a lot of actions. Each of which generates a notification. To avoid this, you have to unsubscribe from the card notifications before the action and subscribe to it after each action. Unsubscribing and subscribing have to be done from under a personal user. So you need to get a token and an application key for a personal user and for an Assistant user.
 
-1. Залогиньтесь в свой личный аккаунт Trello
-2. [Получите ключ приложения для личного аккаунта](https://trello.com/app-key)
-3. Получите токен для личного аккаунта ([`https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>`](https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>))
-4. Залогиньтесь в аккаунт Ассистента
-5. [Получите ключ приложения для аккаунта Ассистента](https://trello.com/app-key)
-6. Получите токен для аккаунта Ассистента  ([`https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>`](https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>))
+1. Log in to your personal Trello account
+2. [Get the application key for your personal account](https://trello.com/app-key)
+3. Get a token for your personal account ([`https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>`](https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>))
+4. Log in to the Assistant's account
+5. [Get the application key for the Assistant account](https://trello.com/app-key)
+6. Get a token for the Assistant account  ([`https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>`](https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&name=Server%20Token&key=<YOUR_KEY>))
 
-### Конфигурация Ассистента
+### Assistant configuration
 
-Ассистент полностью конфигурируется через единственный файл `reference.conf` (`src/main/resources/reference.conf`).
+The assistant is fully configured via a single file `reference.conf` (`src/main/resources/reference.conf`).
 
-Заполните все поля:
+Fill in all the fields:
 
-* `assistant.trello.timeZoneCorrection`,целое число &mdash; коррекция времени относительно UTC. Для часового пояса UTC+3 (Europe/Moscow) это будет `-3`
-* `assistant.trello.users.assistant.id`, строка &mdash; идентификатор пользователя Ассистента
-* `assistant.trello.users.assistant.token`, строка &mdash; токен для пользователя Ассистента
-* `assistant.trello.users.assistant.appKey`, строка &mdash; ключ приложения для пользователя Ассистента
-* `assistant.trello.users.owner.id`, строка &mdash; идентификатор личного пользователя
-* `assistant.trello.users.owner.token`, строка &mdash; токен личного пользователя
-* `assistant.trello.users.owner.appKey`, строка &mdash; ключ приложения личного пользователя
-* `assistant.trello.boards.current.id`, строка &mdash; идентификатор доски "Текущая"
-* `assistant.trello.boards.current.columns.todo.id`, строка &mdash; идентификатор столбца "Сделать" доски "Текущая"
-* `assistant.trello.boards.current.columns.todo.name`, строка &mdash; название столбца "Сделать" доски "Текущая"
-* `assistant.trello.boards.current.columns.todo.limit`, целое число &mdash; максимальное число карточек в столбце "Сделать" доски "Текущая"
-* `assistant.trello.boards.current.columns.week.id`, строка &mdash; идентификатор столбца "На этой неделе" доски "Текущая"
-* `assistant.trello.boards.current.columns.week.name`, строка &mdash; название столбца "На этой неделе" доски "Текущая"
-* `assistant.trello.boards.current.columns.week.limit`, целое число &mdash; максимальное число карточек в столбце "На этой неделе" доски "Текущая"
-* `assistant.trello.boards.current.columns.tomorrow.id`, строка &mdash; идентификатор столбца "Завтра" доски "Текущая"
-* `assistant.trello.boards.current.columns.tomorrow.name`, строка &mdash; название столбца "Завтра" доски "Текущая"
-* `assistant.trello.boards.current.columns.tomorrow.limit`, целое число &mdash; максимальное число карточек в столбце "Завтра" доски "Текущая"
-* `assistant.trello.boards.current.columns.today.id`, строка &mdash; идентификатор столбца "Сегодня" доски "Текущая"
-* `assistant.trello.boards.current.columns.today.name`, строка &mdash; название столбца "Сегодня" доски "Текущая"
-* `assistant.trello.boards.current.columns.today.limit`, целое число &mdash; максимальное число карточек в столбце "Сегодня" доски "Текущая"
-* `assistant.trello.boards.current.columns.inProgress.id`, строка &mdash; идентификатор столбца "В процессе" доски "Текущая"
-* `assistant.trello.boards.current.columns.inProgress.name`, строка &mdash; название столбца "В процессе" доски "Текущая"
-* `assistant.trello.boards.current.columns.inProgress.limit`, целое число &mdash; максимальное число карточек в столбце "В процессе" доски "Текущая"
-* `assistant.trello.boards.current.columns.delegated.id`, строка &mdash; идентификатор столбца "Делегировано" доски "Текущая"
-* `assistant.trello.boards.current.columns.delegated.name`, строка &mdash; название столбца "Делегировано" доски "Текущая"
-* `assistant.trello.boards.current.columns.delegated.limit`, целое число &mdash; максимальное число карточек в столбце "Делегировано" доски "Текущая"
-* `assistant.trello.boards.current.columns.done.id`, строка &mdash; идентификатор столбца "Сделано" доски "Текущая"
-* `assistant.trello.boards.current.columns.done.name`, строка &mdash; название столбца "Сделано" доски "Текущая"
-* `assistant.trello.boards.current.columns.done.limit`, целое число &mdash; максимальное число карточек в столбце "Сделано" доски "Текущая"
-* `assistant.trello.boards.next.columns.todo.id`, строка &mdash; идентификатор столбца "Сделать" доски "Следующая"
-* `assistant.trello.boards.next.columns.todo.name`, строка &mdash; название столбца "Сделать" доски "Следующая"
-* `assistant.trello.boards.next.columns.todo.limit`, целое число &mdash; максимальное число карточек в столбце "Сделать" доски "Следующая"
-* `assistant.trello.boards.next.columns.done.id`, строка &mdash; идентификатор столбца "Сделано" доски "Следующая"
-* `assistant.trello.boards.next.columns.done.name`, строка &mdash; название столбца "Сделано" доски "Следующая"
-* `assistant.trello.boards.next.columns.done.limit`, целое число &mdash; максимальное число карточек в столбце "Сделано" доски "Следующая"
-* `assistant.server.host`, строка &mdash; хост сервера
-* `assistant.server.port`, целое число &mdash; порт сервера
-* `assistant.db.url`, строка &mdash; JDBC-урл для подключения к PostgreSQL
-* `assistant.db.user`, строка &mdash; пользователь для подключения к PostgreSQL
-* `assistant.db.password`, строка &mdash; пароль для подключения к PostgreSQL
-* `assistant.db.driver`, строка &mdash; класс драйвера PostgreSQL
-* `assistant.db.connections.poolSize`, строка &mdash; размер пула соединений PostgreSQL
+* `assistant.trello.timeZoneCorrection`,integer &mdash; correction of time relative to UTC. For UTC+3 time zone (Europe/Moscow) it will be `-3`
+* `assistant.trello.users.assistant.id`, string &mdash; Assistant user ID
+* `assistant.trello.users.assistant.token`, string &mdash; token for the Assistant user
+* `assistant.trello.users.assistant.appKey`, string &mdash; application key for the Assistant user
+* `assistant.trello.users.owner.id`, string &mdash; personal user ID
+* `assistant.trello.users.owner.token`, string &mdash; personal user token
+* `assistant.trello.users.owner.appKey`, string &mdash; personal user's application key
+* `assistant.trello.boards.current.id`, string &mdash; ID of the "Current" board
+* `assistant.trello.boards.current.columns.todo.id`, string &mdash; ID of the "To Do" column of the "Current" board
+* `assistant.trello.boards.current.columns.todo.name`, string &mdash; name of the "To Do" column of the "Current" board
+* `assistant.trello.boards.current.columns.todo.limit`, integer &mdash; the maximum number of cards in the "To Do" column of the "Current" board
+* `assistant.trello.boards.current.columns.week.id`, string &mdash; ID of the "This week" column of the "Current" board
+* `assistant.trello.boards.current.columns.week.name`, string &mdash; name of the "This week" column of the "Current" board
+* `assistant.trello.boards.current.columns.week.limit`, integer &mdash; maximum number of cards in the "This week" column of the "Current" board
+* `assistant.trello.boards.current.columns.tomorrow.id`, string &mdash; ID of the "Tomorrow" column of the "Current" board
+* `assistant.trello.boards.current.columns.tomorrow.name`, string &mdash; name of the "Tomorrow" column of the "Current" board
+* `assistant.trello.boards.current.columns.tomorrow.limit`, integer &mdash; maximum number of cards in the "Tomorrow" column of the "Current" board
+* `assistant.trello.boards.current.columns.today.id`, string &mdash; ID of the "Today" column of the "Current" board
+* `assistant.trello.boards.current.columns.today.name`, string &mdash; name of the "Today" column of the "Current" board
+* `assistant.trello.boards.current.columns.today.limit`, integer &mdash; maximum number of cards in the "Today" column of the "Current" board
+* `assistant.trello.boards.current.columns.inProgress.id`, string &mdash; ID of the "In progress" column of the "Current" board
+* `assistant.trello.boards.current.columns.inProgress.name`, string &mdash; name of the column "In progress" of the board "Current"
+* `assistant.trello.boards.current.columns.inProgress.limit`, integer &mdash; maximum number of cards in the "In progress" column of the "Current" board
+* `assistant.trello.boards.current.columns.delegated.id`, string &mdash; ID of the "Delegated" column of the "Current" board
+* `assistant.trello.boards.current.columns.delegated.name`, string &mdash; name of the "Delegated" column of the "Current" board
+* `assistant.trello.boards.current.columns.delegated.limit`, integer &mdash; maximum number of cards in the "Delegated" column of the "Current" board
+* `assistant.trello.boards.current.columns.done.id`, string &mdash; ID of the "Done" column of the "Current" board
+* `assistant.trello.boards.current.columns.done.name`, string &mdash; name of the "Done" column of the "Current" board
+* `assistant.trello.boards.current.columns.done.limit`, integer &mdash; maximum number of cards in the "Done" column of the "Current" board
+* `assistant.trello.boards.next.columns.todo.id`, string &mdash; ID of the "To Do" column of the "Next" board
+* `assistant.trello.boards.next.columns.todo.name`, string &mdash; name of the "To Do" column of the board is "Next"
+* `assistant.trello.boards.next.columns.todo.limit`, integer &mdash; maximum number of cards in the "To Do" column of the "Next" board
+* `assistant.trello.boards.next.columns.done.id`, string &mdash; ID of the "Done" column of the "Next" board
+* `assistant.trello.boards.next.columns.done.name`, string &mdash; name of the column "Done" of the board is "Next"
+* `assistant.trello.boards.next.columns.done.limit`, integer &mdash; maximum number of cards in the "Done" column of the "Next" board
+* `assistant.server.host`, string &mdash; server host
+* `assistant.server.port`, integer &mdash; server port
+* `assistant.db.url`, string &mdash; JDBC-URL for connecting to PostgreSQL
+* `assistant.db.user`, string &mdash; user to connect to PostgreSQL
+* `assistant.db.password`, string &mdash; password for connecting to PostgreSQL
+* `assistant.db.driver`, string &mdash; PostgreSQL driver class
+* `assistant.db.connections.poolSize`, string &mdash; connection pool size
 
-Где взять? (везде используеются токен и ключ основного аккаунта Трелло)
+Where to get it? (the token and key of personal Trello account are used everywhere)
 
-* Идентификаторы досок: `https://api.trello.com/1/members/me/boards?key=<APP KEY>&token=<TOKEN>`
-* Идентификаторы столбцов: `https://api.trello.com/1/boards/<BOARD ID>/lists?key=<APP KEY>&token=<TOKEN>`
-* Создайте карточки для Ассистента и для основго пользователя на любой доске, назначьте одну на себя, другую на ассистента и достаньте идентификаторы пользователей из `https://api.trello.com/1/boards/<BOARD ID>/cards?key=<APP KEY>&token=<TOKEN>`
+* Board IDs: `https://api.trello.com/1/members/me/boards?key=<APP KEY>&token=<TOKEN>`
+* Column IDs: `https://api.trello.com/1/boards/<BOARD ID>/lists?key=<APP KEY>&token=<TOKEN>`
+* Create cards for the Assistant and for the personal user on any board, assign one to yourself, the other to the assistant and get the user IDs from `https://api.trello.com/1/boards/<BOARD ID>/cards?key=<APP KEY>&token=<TOKEN>`
 
-Скопируйте содержимое в файл `src/main/resources/reference.conf`:
+Copy the contents to the file `src/main/resources/reference.conf`:
 
 ```
 assistant {
@@ -209,37 +207,37 @@ assistant {
         columns {
           todo {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="Сделать"
+            name="To Do"
             limit=217
           }
           week {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="На этой неделе"
+            name="This week"
             limit=49
           }
           tomorrow {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="Завтра"
+            name="Tomorrow"
             limit=7
           }
           today {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="Сегодня"
+            name="Today"
             limit=7
           }
           inProgress {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="В процессе"
+            name="In progress"
             limit=2
           }
           delegated {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="Делегировано"
+            name="Delegated"
             limit=14
           }
           done {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="Сделано"
+            name="Done"
             limit=217
           }
         }
@@ -249,19 +247,19 @@ assistant {
         columns {
           todo {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="Сделать"
+            name="To Do"
             limit=2562
           }
           done {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
-            name="Сделано"
+            name="Done"
             limit=2562
           }
         }
       }
     }
     messages {
-      listLimitReached="Не удалось переместить карточку в столбец \"LIST_NAME\". Столбец \"LIST_NAME\" уже содержит LIMIT или больше карточек"
+      listLimitReached="Unable to move this card to \"LIST_NAME\" list. List \"LIST_NAME\" already contains LIMIT or more cards"
     }
   }
   server {
@@ -281,33 +279,33 @@ assistant {
 
 ```
 
-### Сборка приложения Ассистента
+### Building Assistant
 
 ```sh
 # Build
 ./sbtx assembly
 ```
 
-Отправить на сервер приложение можно через scp:
+You can send the application to the server via scp:
 
 ```sh
 # Deploy
 scp target/scala-2.12/assistant-assembly-0.0.1-SNAPSHOT.jar user@yourserver.com:/root/assistant.jar
 ```
 
-Запуск приложения:
+Launching the application:
 
 ```sh
 nohup java -jar assistant.jar &> assistant.log &
 ```
 
-Проверка, что приложение работает:
+Checking that the app is working:
 
 ```sh
 curl http://yourserver.com:8080/api/trello
 ```
 
-Остановка приложения:
+Stopping the application:
 
 ```sh
 # Get PID of "java" process
@@ -319,9 +317,9 @@ kill -9 <pid>
 
 ### Webhooks
 
-Через Webhooks Трелло сообщает о новых событиях, таких как создание и обновление карточек. Нужно создать веб-хуки для обеих досок "Текущая" и "Следующая". Вставьте токен, ключ приложения для вашего личного пользователя Трелло и адрес сервера, на котором уже работает ассистент и выполните:
+Through Webhooks Trello reports on new events, such as the creation and updating of cards. You need to create web hooks for both the "Current" and "Next" boards. Insert the token, the application key for your personal user Trello and the address of the server where the assistant is already working and run:
 
-Здесь также нужно вставить идентификатор доски "Текущая":
+Here you also need to insert the "Current" board ID:
 
 ```sh
 curl -X POST -H "Content-Type: application/json" \
@@ -334,7 +332,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
 }'
 ```
 
-Придет ответ от Трелло:
+A reply will come from Trello:
 
 ```json
 {
@@ -348,7 +346,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
 }
 ```
 
-Аналогично для доски "Следующая":
+Similarly for the "Next" board:
 
 ```sh
 curl -X POST -H "Content-Type: application/json" \
@@ -361,7 +359,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
 }'
 ```
 
-Придет ответ от Трелло:
+A reply will come from Trello:
 
 ```json
 {
