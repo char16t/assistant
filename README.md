@@ -1,5 +1,7 @@
 # Assistant
 
+_Этот документ доступен также [на русском языке](README_RU.md)._ 
+
 Assistant is a bot for Trello, that helps keep Kanban-boards at Trello up to date.
 
 ![Assistant Demo](/docs/assistant.gif)
