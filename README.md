@@ -100,7 +100,7 @@ Temporary ad-hoc, automatic daily transfer of cards by columns. Add this to cron
 
 #### Accounts
 
-To work, you will need two Trello accounts: personal and for an assistant. If you don't have a personal Trello account, [create one](https://trello.com/signup), then create an account for the assistant.
+To work you will need two Trello accounts: personal and for an assistant. If you don't have a personal Trello account, [create one](https://trello.com/signup), then create an account for the assistant.
 
 1. [Create a personal account in Trello](https://trello.com/signup) (if necessary)
 2. [Create an account for assistant in Trello](https://trello.com/signup), upload avatar and disable email notifications in the settings
