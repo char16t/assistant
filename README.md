@@ -136,7 +136,7 @@ The assistant is fully configured via a single file `reference.conf` (`src/main/
 
 Fill in all the fields:
 
-* `assistant.trello.timeZoneCorrection`,integer &mdash; correction of time relative to UTC. For UTC+3 time zone (Europe/Moscow) it will be `-3`
+* `assistant.trello.timeZoneCorrection`,integer &mdash; correction of time relative to UTC. For UTC+3 time zone (Europe/Moscow) it will be `3`
 * `assistant.trello.users.assistant.id`, string &mdash; Assistant user ID
 * `assistant.trello.users.assistant.token`, string &mdash; token for the Assistant user
 * `assistant.trello.users.assistant.appKey`, string &mdash; application key for the Assistant user
@@ -190,7 +190,7 @@ Copy the contents to the file `src/main/resources/reference.conf`:
 ```
 assistant {
   trello {
-    timeZoneCorrection=-3
+    timeZoneCorrection=3
     users {
         assistant {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"

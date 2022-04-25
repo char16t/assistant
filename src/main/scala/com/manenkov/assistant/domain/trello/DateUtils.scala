@@ -1,14 +1,12 @@
 package com.manenkov.assistant.domain.trello
 
-import java.time.{DayOfWeek, LocalDateTime, LocalTime, OffsetDateTime, ZoneOffset}
+import java.time.{DayOfWeek, LocalDateTime, LocalTime}
 import java.time.temporal.{ChronoUnit, TemporalAdjusters}
 
 case class DateUtils(timeZoneCorrection: Integer) {
 
-  private def withTimezone(dt: LocalDateTime): LocalDateTime = {
-    val off = OffsetDateTime.of(dt, ZoneOffset.ofHours(0))
-    off.withOffsetSameInstant(ZoneOffset.ofHours(timeZoneCorrection)).toLocalDateTime
-  }
+  private def withTimezone(dt: LocalDateTime): LocalDateTime =
+    dt.plus(timeZoneCorrection.toLong, ChronoUnit.HOURS)
 
   def todayMin(): LocalDateTime = {
     withTimezone(LocalDateTime.now().`with`(LocalTime.MIN))
