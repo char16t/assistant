@@ -136,7 +136,7 @@ createdb assistant
 
 Заполните все поля:
 
-* `assistant.trello.timeZoneCorrection`,целое число &mdash; коррекция времени относительно UTC. Для часового пояса UTC+3 (Europe/Moscow) это будет `-3`
+* `assistant.trello.timeZoneCorrection`,целое число &mdash; коррекция времени относительно UTC. Для часового пояса UTC+3 (Europe/Moscow) это будет `3`
 * `assistant.trello.users.assistant.id`, строка &mdash; идентификатор пользователя Ассистента
 * `assistant.trello.users.assistant.token`, строка &mdash; токен для пользователя Ассистента
 * `assistant.trello.users.assistant.appKey`, строка &mdash; ключ приложения для пользователя Ассистента
@@ -190,7 +190,7 @@ createdb assistant
 ```
 assistant {
   trello {
-    timeZoneCorrection=-3
+    timeZoneCorrection=3
     users {
         assistant {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
