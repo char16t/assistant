@@ -49,26 +49,26 @@ case class DateUtils(timeZoneCorrection: Integer) {
   }
 
   def isOverdue(date: LocalDateTime): Boolean = {
-    val now = LocalDateTime.now().`with`(LocalTime.MIN)
+    val now = withTimezone(LocalDateTime.now().`with`(LocalTime.MIN))
     date.isBefore(now)
   }
 
   def isToday(date: LocalDateTime): Boolean = {
-    val now = LocalDateTime.now()
+    val now = withTimezone(LocalDateTime.now())
     date.getYear == now.getYear &&
       date.getMonth == now.getMonth &&
       date.getDayOfMonth == now.getDayOfMonth
   }
 
   def isTomorrow(date: LocalDateTime): Boolean = {
-    val tom = LocalDateTime.now().plus(1, ChronoUnit.DAYS)
+    val tom = withTimezone(LocalDateTime.now().plus(1, ChronoUnit.DAYS))
     date.getYear == tom.getYear &&
       date.getMonth == tom.getMonth &&
       date.getDayOfMonth == tom.getDayOfMonth
   }
 
   def onThisWeek(date: LocalDateTime): Boolean = {
-    val now = LocalDateTime.now()
+    val now = withTimezone(LocalDateTime.now())
     val mon = if (now.getDayOfWeek == DayOfWeek.MONDAY)
       now.`with`(LocalTime.MIN) else now.`with`(TemporalAdjusters.previous(DayOfWeek.MONDAY))
     val sun =
@@ -80,20 +80,20 @@ case class DateUtils(timeZoneCorrection: Integer) {
   }
 
   def onPrevMonths(date: LocalDateTime): Boolean = {
-    val now = LocalDateTime.now()
+    val now = withTimezone(LocalDateTime.now())
     val firstDay = now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.MIN)
     date.isBefore(firstDay)
   }
 
   def onThisMonth(date: LocalDateTime): Boolean = {
-    val now = LocalDateTime.now()
+    val now = withTimezone(LocalDateTime.now())
     val firstDay = now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.MIN)
     val lastDay = now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.MAX)
     date.isAfter(firstDay) && date.isBefore(lastDay)
   }
 
   def onNextMonths(date: LocalDateTime): Boolean = {
-    val now = LocalDateTime.now()
+    val now = withTimezone(LocalDateTime.now())
     val lastDay = now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.MAX)
     date.isAfter(lastDay)
   }
