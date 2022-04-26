@@ -6,7 +6,7 @@ import java.time.temporal.{ChronoUnit, TemporalAdjusters}
 case class DateUtils(timeZoneCorrection: Integer) {
 
   private def withTimezone(dt: LocalDateTime): LocalDateTime =
-    dt.minus(timeZoneCorrection.toLong, ChronoUnit.HOURS)
+    dt.plus(timeZoneCorrection.toLong, ChronoUnit.HOURS)
 
   def todayMin(): LocalDateTime = {
     withTimezone(LocalDateTime.now().`with`(LocalTime.MIN))
