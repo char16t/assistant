@@ -52,7 +52,7 @@ case class DateUtils(timeZoneCorrection: Integer) {
   }
 
   def isOverdue(date: LocalDateTime): Boolean = {
-    val now = plusTimezoneCorrection(LocalDateTime.now().`with`(LocalTime.MIN))
+    val now = plusTimezoneCorrection(LocalDateTime.now()).`with`(LocalTime.MIN)
     date.isBefore(now)
   }
 
