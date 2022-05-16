@@ -93,11 +93,11 @@ createdb assistant
 Temporary ad-hoc, automatic daily transfer of cards by columns. Add this to cron (`crontab -e`):
 
 ```
-0 0 * * * curl http://yourserver.com/api/trello/organize_cards
+1 0 * * * curl http://yourserver.com/api/trello/organize_cards
 ```
 
-Based on your time zone the cron schedule will look like this: `0 (24-TZ) * * *`. Example: for Europe/Moscow UTC+3 
-it will be `0 21 * * *`.
+Based on your time zone the cron schedule will look like this: `1 (24-TZ) * * *`. Example: for Europe/Moscow UTC+3 
+it will be `1 21 * * *`.
 
 ### Trello preparation
 

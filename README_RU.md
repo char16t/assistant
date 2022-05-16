@@ -93,11 +93,11 @@ createdb assistant
 Временная мера, автоматический ежедневный перенос карточек по столбцам. Добавьте это в cron (`crontab -e`):
 
 ```
-0 0 * * * curl http://yourserver.com/api/trello/organize_cards
+1 0 * * * curl http://yourserver.com/api/trello/organize_cards
 ```
 
-С учётом вашей временной зоны расписание cron будет выглядеть так: `0 (24-TZ) * * *`. Например для UTC+3 (Europe/Moscow)
-это будет `0 21 * * *`.
+С учётом вашего часового пояса расписание cron будет выглядеть так: `1 (24-TZ) * * *`. Например для UTC+3 (Europe/Moscow)
+это будет `1 21 * * *`.
 
 ### Подготовка Trello
 
