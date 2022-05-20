@@ -394,11 +394,9 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
     }
 
     cardDescription.substring(0, firstIdx) ++
-      s"""
-        |```
+      s"""```
         |$json
-        |```
-        |""".stripMargin
+        |```""".stripMargin
   }
 
   private def cardToCardInternal(cards: Seq[Card]): Seq[CardInternal] = {
