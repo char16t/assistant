@@ -412,7 +412,9 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
           pos = card.pos,
           dueComplete = card.dueComplete,
           idMembers = card.idMembers,
-          techInfo = getCardTechInfo(card.desc)
+          labels = card.labels,
+          idLabels = card.idLabels,
+          techInfo = getCardTechInfo(card.desc),
         )
       case card if card.due.isEmpty =>
         CardInternal(
@@ -425,7 +427,9 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
           pos = card.pos,
           dueComplete = card.dueComplete,
           idMembers = card.idMembers,
-          techInfo = getCardTechInfo(card.desc)
+          labels = card.labels,
+          idLabels = card.idLabels,
+          techInfo = getCardTechInfo(card.desc),
         )
     }
   }
