@@ -23,6 +23,7 @@ val FlywayVersion = "8.5.4"
 val SttpVersion = "3.5.1"
 
 libraryDependencies ++= Seq(
+  "com.manenkov" %% "flow" % "0.1.0-RC4",
   "org.typelevel" %% "cats-core" % CatsVersion,
   "io.circe" %% "circe-generic" % CirceVersion,
   "io.circe" %% "circe-literal" % CirceVersion,
