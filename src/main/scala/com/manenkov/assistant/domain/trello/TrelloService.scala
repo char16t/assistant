@@ -2,9 +2,11 @@ package com.manenkov.assistant.domain.trello
 
 import cats.effect.Sync
 import com.manenkov.assistant.config.AssistantConfig
+import com.manenkov.flow.ChangeDue
 import io.circe.generic.extras.Configuration
 import sttp.client3.quick.backend
 
+import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -17,9 +19,9 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
   val dateUtils = DateUtils(conf.trello.timeZoneCorrection)
 
   def receiveWebhook(webhook: Webhook)(implicit S: Sync[F]): F[Seq[Card]] = S.delay[Seq[Card]] {
+    import io.circe.generic.auto._
     import sttp.client3._
     import sttp.client3.circe._
-    import io.circe.generic.auto._
 
     val isProcessAllowed = webhook.action.idMemberCreator == conf.trello.users.owner.id
 
@@ -134,6 +136,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       // update or create card
       case "createCard" | "updateCard" if isProcessAllowed =>
+        organizeCards2()
         val uri = uri"https://api.trello.com/1/cards/${webhook.action.data.card.get.id}?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
         val request = basicRequest.get(uri).response(asJson[Card])
         request.send(backend).body.toOption match {
@@ -147,11 +150,81 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
     cards
   }
 
-  def organizeCards()(implicit S: Sync[F]): F[Seq[Card]] =
-    S.delay[Seq[Card]] {
+  private def organizeCards2(): Unit = {
+      import io.circe.generic.auto._
       import sttp.client3._
       import sttp.client3.circe._
+
+      def getCardsFromList(idList: String): Seq[Card] = {
+        val url = uri"https://api.trello.com/1/lists/$idList/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
+        val request = basicRequest.get(url).response(asJson[List[Card]])
+        val response = request.send(backend)
+        Seq(response.body.toOption).flatten.flatten
+      }
+
+      implicit val localDateTimeOrdering: Ordering[LocalDateTime] = Ordering.by(c => Timestamp.valueOf(c).toInstant)
+      val cards = Seq(
+        conf.trello.boards.current.columns.delegated.id,
+        conf.trello.boards.current.columns.inProgress.id,
+        conf.trello.boards.current.columns.today.id,
+        conf.trello.boards.current.columns.tomorrow.id,
+        conf.trello.boards.current.columns.week.id,
+        conf.trello.boards.current.columns.todo.id,
+        conf.trello.boards.next.columns.todo.id,
+      ).foldLeft(Seq[CardInternal]())(
+        (list, idList) => {
+          list ++ cardToCardInternal(getCardsFromList(idList)).sortWith((a, b) => Ordering[Option[LocalDateTime]].lt(a.due, b.due))
+        }
+      )
+
+      val flowUtils = FlowUtils(
+        timeZoneCorrection = conf.trello.timeZoneCorrection,
+        limitPerDay = conf.trello.boards.current.columns.today.limit,
+        limitPerWeek = conf.trello.boards.current.columns.today.limit * 7,
+        limitPerMonth = conf.trello.boards.current.columns.today.limit * 7 * 4,
+        limitPerYear = conf.trello.boards.current.columns.today.limit * 7 * 4 * 12
+      )
+      val cardsAsEvents = flowUtils.cardsToEvents(cards)
+      val updatedCardsAsEvents = flowUtils.flow(cardsAsEvents)
+      val diff = flowUtils.diff(cardsAsEvents, updatedCardsAsEvents)
+
+      for (change <- diff) {
+        change match {
+          case ChangeDue(id, _, to) =>
+            val card = cards.filter(_.id == id).head
+            updateCard(card, CardChanges(due = Some(to)), silent = true, asOwner = false)
+          case _ => // do nothing
+        }
+      }
+
+      println(
+        s"""(organizeCards2)
+           |=================
+           ||     BEFORE    |
+           |=================
+           | $cardsAsEvents
+           |
+           |=================
+           |      AFTER     |
+           |=================
+           | $updatedCardsAsEvents
+           |
+           |=================
+           ||    CHANGES    |
+           |=================
+           | $diff
+           |=================
+           |""".stripMargin)
+      ()
+    }
+
+  def organizeCards()(implicit S: Sync[F]): F[Seq[Card]] =
+    S.delay[Seq[Card]] {
       import io.circe.generic.auto._
+      import sttp.client3._
+      import sttp.client3.circe._
+
+      organizeCards2()
 
       val getCurrentCardsUri = uri"https://api.trello.com/1/boards/${conf.trello.boards.current.id}/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
       val request = basicRequest.get(getCurrentCardsUri).response(asJson[List[Card]])
@@ -169,35 +242,6 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
     }
 
   private def processCards(cardsToProcess: Seq[Card]): Unit = {
-
-    val flowUtils = FlowUtils(
-      timeZoneCorrection = conf.trello.timeZoneCorrection,
-      limitPerDay = conf.trello.boards.current.columns.today.limit,
-      limitPerWeek = conf.trello.boards.current.columns.today.limit * 7,
-      limitPerMonth = conf.trello.boards.current.columns.today.limit * 7 * 4,
-      limitPerYear = conf.trello.boards.current.columns.today.limit * 7 * 4 * 12
-    )
-    val cardsAsEvents = flowUtils.cardsToEvents(cardToCardInternal(cardsToProcess))
-    val updatedCardsAsEvents = flowUtils.flow(cardsAsEvents)
-    val diff = flowUtils.diff(cardsAsEvents, updatedCardsAsEvents)
-    println(
-      s"""
-        |=================
-        ||     BEFORE    |
-        |=================
-        | $cardsAsEvents
-        |
-        |=================
-        |      AFTER     |
-        |=================
-        | $updatedCardsAsEvents
-        |
-        |=================
-        ||    CHANGES    |
-        |=================
-        | $diff
-        |=================
-        |""".stripMargin)
 
     cardToCardInternal(cardsToProcess).foreach({
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.todo.id =>
@@ -304,9 +348,9 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
   }
 
   private def updateCard(card: CardInternal, changes: CardChanges, silent: Boolean, asOwner: Boolean): Unit = {
+    import io.circe.syntax._
     import sttp.client3._
     import sttp.client3.circe._
-    import io.circe.syntax._
 
     val silentPathParams = Map[String, String](
       "key" -> conf.trello.users.owner.appKey,
@@ -376,8 +420,8 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
     }
     val json = cardDescription.substring(firstIdx + 3, lastIdx)
 
-    import io.circe.parser._
     import io.circe.generic.extras.auto._
+    import io.circe.parser._
     val decodedFoo = decode[CardTechInfo](json)
     decodedFoo match {
       case Right(info) =>
@@ -389,8 +433,8 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
   }
 
   private def makeCardDescription(cardDescription: String, techInfo: CardTechInfo): String = {
-    import io.circe.syntax._
     import io.circe.generic.extras.auto._
+    import io.circe.syntax._
 
     val json = techInfo.asJson.noSpaces
 
