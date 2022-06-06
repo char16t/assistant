@@ -170,6 +170,35 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
   private def processCards(cardsToProcess: Seq[Card]): Unit = {
 
+    val flowUtils = FlowUtils(
+      timeZoneCorrection = conf.trello.timeZoneCorrection,
+      limitPerDay = conf.trello.boards.current.columns.today.limit,
+      limitPerWeek = conf.trello.boards.current.columns.today.limit * 7,
+      limitPerMonth = conf.trello.boards.current.columns.today.limit * 7 * 4,
+      limitPerYear = conf.trello.boards.current.columns.today.limit * 7 * 4 * 12
+    )
+    val cardsAsEvents = flowUtils.cardsToEvents(cardToCardInternal(cardsToProcess))
+    val updatedCardsAsEvents = flowUtils.flow(cardsAsEvents)
+    val diff = flowUtils.diff(cardsAsEvents, updatedCardsAsEvents)
+    println(
+      s"""
+        |=================
+        ||     BEFORE    |
+        |=================
+        | $cardsAsEvents
+        |
+        |=================
+        |      AFTER     |
+        |=================
+        | $updatedCardsAsEvents
+        |
+        |=================
+        ||    CHANGES    |
+        |=================
+        | $diff
+        |=================
+        |""".stripMargin)
+
     cardToCardInternal(cardsToProcess).foreach({
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.todo.id =>
         updateCard(card, CardChanges (due = Option(dateUtils.thisMonthMax())), silent = true, asOwner = false)
