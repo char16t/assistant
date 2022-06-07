@@ -10,7 +10,6 @@ Automated actions:
 
 * Daily transfer of cards by columns "Today", "Tomorrow", "This week", "This month"
 * Updating the due date on the card when transferring between columns. For example, when transferring the card to the "Today" column, the due date will be automatically set as "today 23:59", and when transferring the card to the "This week" column, the due date "next Sunday 23:59" will be set
-* Control of card limits in columns: if the card limit in a column is exceeded, it will not be possible to move a new card there, it will return to the original column with an explanatory comment inside
 * When creating a card, it is immediately assigned to the owner of the board and a due date is set on it in accordance with the column in which it was created
 * All expired cards are transferred to the "Today" column
 * When the "completed" checkbox is placed on the due date of the card, it is automatically transferred to the "Done" column at the top
@@ -149,31 +148,22 @@ Fill in all the fields:
 * `assistant.trello.boards.current.id`, string &mdash; ID of the "Current" board
 * `assistant.trello.boards.current.columns.todo.id`, string &mdash; ID of the "To Do" column of the "Current" board
 * `assistant.trello.boards.current.columns.todo.name`, string &mdash; name of the "To Do" column of the "Current" board
-* `assistant.trello.boards.current.columns.todo.limit`, integer &mdash; the maximum number of cards in the "To Do" column of the "Current" board
 * `assistant.trello.boards.current.columns.week.id`, string &mdash; ID of the "This week" column of the "Current" board
 * `assistant.trello.boards.current.columns.week.name`, string &mdash; name of the "This week" column of the "Current" board
-* `assistant.trello.boards.current.columns.week.limit`, integer &mdash; maximum number of cards in the "This week" column of the "Current" board
 * `assistant.trello.boards.current.columns.tomorrow.id`, string &mdash; ID of the "Tomorrow" column of the "Current" board
 * `assistant.trello.boards.current.columns.tomorrow.name`, string &mdash; name of the "Tomorrow" column of the "Current" board
-* `assistant.trello.boards.current.columns.tomorrow.limit`, integer &mdash; maximum number of cards in the "Tomorrow" column of the "Current" board
 * `assistant.trello.boards.current.columns.today.id`, string &mdash; ID of the "Today" column of the "Current" board
 * `assistant.trello.boards.current.columns.today.name`, string &mdash; name of the "Today" column of the "Current" board
-* `assistant.trello.boards.current.columns.today.limit`, integer &mdash; maximum number of cards in the "Today" column of the "Current" board
 * `assistant.trello.boards.current.columns.inProgress.id`, string &mdash; ID of the "In progress" column of the "Current" board
 * `assistant.trello.boards.current.columns.inProgress.name`, string &mdash; name of the column "In progress" of the board "Current"
-* `assistant.trello.boards.current.columns.inProgress.limit`, integer &mdash; maximum number of cards in the "In progress" column of the "Current" board
 * `assistant.trello.boards.current.columns.delegated.id`, string &mdash; ID of the "Delegated" column of the "Current" board
 * `assistant.trello.boards.current.columns.delegated.name`, string &mdash; name of the "Delegated" column of the "Current" board
-* `assistant.trello.boards.current.columns.delegated.limit`, integer &mdash; maximum number of cards in the "Delegated" column of the "Current" board
 * `assistant.trello.boards.current.columns.done.id`, string &mdash; ID of the "Done" column of the "Current" board
 * `assistant.trello.boards.current.columns.done.name`, string &mdash; name of the "Done" column of the "Current" board
-* `assistant.trello.boards.current.columns.done.limit`, integer &mdash; maximum number of cards in the "Done" column of the "Current" board
 * `assistant.trello.boards.next.columns.todo.id`, string &mdash; ID of the "To Do" column of the "Next" board
 * `assistant.trello.boards.next.columns.todo.name`, string &mdash; name of the "To Do" column of the board is "Next"
-* `assistant.trello.boards.next.columns.todo.limit`, integer &mdash; maximum number of cards in the "To Do" column of the "Next" board
 * `assistant.trello.boards.next.columns.done.id`, string &mdash; ID of the "Done" column of the "Next" board
 * `assistant.trello.boards.next.columns.done.name`, string &mdash; name of the column "Done" of the board is "Next"
-* `assistant.trello.boards.next.columns.done.limit`, integer &mdash; maximum number of cards in the "Done" column of the "Next" board
 * `assistant.server.host`, string &mdash; server host
 * `assistant.server.port`, integer &mdash; server port
 * `assistant.db.url`, string &mdash; JDBC-URL for connecting to PostgreSQL
@@ -213,37 +203,30 @@ assistant {
           todo {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="To Do"
-            limit=217
           }
           week {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="This week"
-            limit=49
           }
           tomorrow {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Tomorrow"
-            limit=7
           }
           today {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Today"
-            limit=7
           }
           inProgress {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="In progress"
-            limit=2
           }
           delegated {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Delegated"
-            limit=14
           }
           done {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Done"
-            limit=217
           }
         }
       }
@@ -253,18 +236,13 @@ assistant {
           todo {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="To Do"
-            limit=2562
           }
           done {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Done"
-            limit=2562
           }
         }
       }
-    }
-    messages {
-      listLimitReached="Unable to move this card to \"LIST_NAME\" list. List \"LIST_NAME\" already contains LIMIT or more cards"
     }
   }
   server {

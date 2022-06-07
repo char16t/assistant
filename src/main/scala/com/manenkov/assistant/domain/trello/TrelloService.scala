@@ -49,89 +49,58 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         val nextBoardCardsResponse = nextBoardCardsRequest.send(backend)
         val allCards = Seq(currentBoardResponse.body.toOption, nextBoardCardsResponse.body.toOption).flatten.flatten
 
-        val actualSize = cardToCardInternal(allCards).count(_.idList == webhook.action.data.card.get.idList.get)
-        val limit = webhook.action.data.card.get.idList.get match {
-          case conf.trello.boards.current.columns.todo.id => conf.trello.boards.current.columns.todo.limit
-          case conf.trello.boards.current.columns.week.id => conf.trello.boards.current.columns.week.limit
-          case conf.trello.boards.current.columns.tomorrow.id => conf.trello.boards.current.columns.tomorrow.limit
-          case conf.trello.boards.current.columns.today.id => conf.trello.boards.current.columns.today.limit
-          case conf.trello.boards.current.columns.inProgress.id => conf.trello.boards.current.columns.inProgress.limit
-          case conf.trello.boards.current.columns.delegated.id => conf.trello.boards.current.columns.delegated.limit
-          case conf.trello.boards.current.columns.done.id => conf.trello.boards.current.columns.done.limit
-          case _ => Int.MaxValue
-        }
+
 
         val maybeCurrentCard = cardToCardInternal(allCards).find(_.id == webhook.action.data.card.get.id)
 
-        if (actualSize > limit) {
-          val card = maybeCurrentCard.get
-          updateCard(card, CardChanges(boardId = Option(card.idBoard), listId = webhook.action.data.old.get.idList), silent = true, asOwner = false)
 
-          val listName = webhook.action.data.card.get.idList.get match {
-            case conf.trello.boards.current.columns.todo.id => conf.trello.boards.current.columns.todo.name
-            case conf.trello.boards.current.columns.week.id => conf.trello.boards.current.columns.week.name
-            case conf.trello.boards.current.columns.tomorrow.id => conf.trello.boards.current.columns.tomorrow.name
-            case conf.trello.boards.current.columns.today.id => conf.trello.boards.current.columns.today.name
-            case conf.trello.boards.current.columns.inProgress.id => conf.trello.boards.current.columns.inProgress.name
-            case conf.trello.boards.current.columns.delegated.id => conf.trello.boards.current.columns.delegated.name
-            case conf.trello.boards.current.columns.done.id => conf.trello.boards.current.columns.done.name
-            case id => id
-          }
-          val msg = conf.trello.messages.listLimitReached
-            .replaceAll("LIMIT", limit.toString)
-            .replaceAll("LIST_NAME", listName)
-          commentCard(card, msg)
-          Seq()
-        } else {
-
-          // When card moved from Done column to other column
-          // uncheck "complete" flag
-          if ((webhook.action.data.old.get.idList.get == conf.trello.boards.current.columns.done.id
-            || webhook.action.data.old.get.idList.get == conf.trello.boards.next.columns.done.id)
-            && webhook.action.data.card.get.idList.get != conf.trello.boards.current.columns.done.id
-            && webhook.action.data.card.get.idList.get != conf.trello.boards.next.columns.done.id
-          ) {
-            maybeCurrentCard match {
-              case Some(card) =>
-                updateCard(card, CardChanges(dueComplete = Option(false)), silent = true, asOwner = false)
-              case None => ()
-            }
-          }
-
-          // When card moved from other column column to Done
-          // check "complete" flag
-          if ((webhook.action.data.card.get.idList.get == conf.trello.boards.current.columns.done.id
-            || webhook.action.data.card.get.idList.get == conf.trello.boards.next.columns.done.id)
-            && webhook.action.data.old.get.idList.get != conf.trello.boards.current.columns.done.id
-            && webhook.action.data.old.get.idList.get != conf.trello.boards.next.columns.done.id
-          ) {
-            maybeCurrentCard match {
-              case Some(card) =>
-                updateCard(card, CardChanges(dueComplete = Option(true)), silent = true, asOwner = false)
-              case None => ()
-            }
-          }
-
+        // When card moved from Done column to other column
+        // uncheck "complete" flag
+        if ((webhook.action.data.old.get.idList.get == conf.trello.boards.current.columns.done.id
+          || webhook.action.data.old.get.idList.get == conf.trello.boards.next.columns.done.id)
+          && webhook.action.data.card.get.idList.get != conf.trello.boards.current.columns.done.id
+          && webhook.action.data.card.get.idList.get != conf.trello.boards.next.columns.done.id
+        ) {
           maybeCurrentCard match {
-            case Some(card) => webhook.action.data.card.get.idList.get match {
-              case conf.trello.boards.current.columns.todo.id =>
-                updateCard(card, CardChanges(due = Option(dateUtils.thisMonthMax())), silent = true, asOwner = false)
-                Seq()
-              case conf.trello.boards.current.columns.week.id =>
-                updateCard(card, CardChanges(due = Option(dateUtils.thisWeekMax())), silent = true, asOwner = false)
-                Seq()
-              case conf.trello.boards.current.columns.tomorrow.id =>
-                updateCard(card, CardChanges(due = Option(dateUtils.tomorrowMax())), silent = true, asOwner = false)
-                Seq()
-              case conf.trello.boards.current.columns.today.id =>
-                updateCard(card, CardChanges(due = Option(dateUtils.todayMax())), silent = true, asOwner = false)
-                Seq()
-              case _ =>
-                // do nothing
-                Seq()
-            }
-            case None => Seq()
+            case Some(card) =>
+              updateCard(card, CardChanges(dueComplete = Option(false)), silent = true, asOwner = false)
+            case None => ()
           }
+        }
+
+        // When card moved from other column column to Done
+        // check "complete" flag
+        if ((webhook.action.data.card.get.idList.get == conf.trello.boards.current.columns.done.id
+          || webhook.action.data.card.get.idList.get == conf.trello.boards.next.columns.done.id)
+          && webhook.action.data.old.get.idList.get != conf.trello.boards.current.columns.done.id
+          && webhook.action.data.old.get.idList.get != conf.trello.boards.next.columns.done.id
+        ) {
+          maybeCurrentCard match {
+            case Some(card) =>
+              updateCard(card, CardChanges(dueComplete = Option(true)), silent = true, asOwner = false)
+            case None => ()
+          }
+        }
+
+        maybeCurrentCard match {
+          case Some(card) => webhook.action.data.card.get.idList.get match {
+            case conf.trello.boards.current.columns.todo.id =>
+              updateCard(card, CardChanges(due = Option(dateUtils.thisMonthMax())), silent = true, asOwner = false)
+              Seq()
+            case conf.trello.boards.current.columns.week.id =>
+              updateCard(card, CardChanges(due = Option(dateUtils.thisWeekMax())), silent = true, asOwner = false)
+              Seq()
+            case conf.trello.boards.current.columns.tomorrow.id =>
+              updateCard(card, CardChanges(due = Option(dateUtils.tomorrowMax())), silent = true, asOwner = false)
+              Seq()
+            case conf.trello.boards.current.columns.today.id =>
+              updateCard(card, CardChanges(due = Option(dateUtils.todayMax())), silent = true, asOwner = false)
+              Seq()
+            case _ =>
+              // do nothing
+              Seq()
+          }
+          case None => Seq()
         }
 
       // update or create card
@@ -179,10 +148,10 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       val flowUtils = FlowUtils(
         timeZoneCorrection = conf.trello.timeZoneCorrection,
-        limitPerDay = conf.trello.boards.current.columns.today.limit,
-        limitPerWeek = conf.trello.boards.current.columns.today.limit * 7,
-        limitPerMonth = conf.trello.boards.current.columns.today.limit * 7 * 4,
-        limitPerYear = conf.trello.boards.current.columns.today.limit * 7 * 4 * 12
+        limitPerDay = 7,
+        limitPerWeek = 7 * 7,
+        limitPerMonth = 7 * 7 * 4,
+        limitPerYear = 7 * 7 * 4 * 12
       )
       val cardsAsEvents = flowUtils.cardsToEvents(cards)
       val updatedCardsAsEvents = flowUtils.flow(cardsAsEvents)

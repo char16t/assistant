@@ -8,7 +8,6 @@
 
 * Ежедневный перенос карточек по столбцам "Сегодня", "Завтра", "На этой неделе", "В этом месяце"
 * Обновление крайнего срока на карточке при переносе между столбцами. Например, при переносе карточки в столбец "Сегодня" будет автоматически установлен крайний срок как "сегодня 23:59", а при переносе карточки в стобец "На этой неделе" будет установлен крайний срок "ближайшее воскресенье 23:59"
-* Контроль лимитов карточек в столбцах: если лимит карточек в столбце превышен, то переместить туда новую карточку не получится, она вернется в исходный столбец с поясняющим комментарием внутри
 * При создании карточки, она сразу же назначается на владельца доски и на ней устанавливается крайний срок в соответствии со столбцом, в котором она создана
 * Все просроченные карточки переносятся в столбец "Сегодня"
 * При простановке флажка "завершено" на крайнем сроке карточки, она автоматически переносится в столбец "Сделано" на самый верх
@@ -149,31 +148,22 @@ createdb assistant
 * `assistant.trello.boards.current.id`, строка &mdash; идентификатор доски "Текущая"
 * `assistant.trello.boards.current.columns.todo.id`, строка &mdash; идентификатор столбца "Сделать" доски "Текущая"
 * `assistant.trello.boards.current.columns.todo.name`, строка &mdash; название столбца "Сделать" доски "Текущая"
-* `assistant.trello.boards.current.columns.todo.limit`, целое число &mdash; максимальное число карточек в столбце "Сделать" доски "Текущая"
 * `assistant.trello.boards.current.columns.week.id`, строка &mdash; идентификатор столбца "На этой неделе" доски "Текущая"
 * `assistant.trello.boards.current.columns.week.name`, строка &mdash; название столбца "На этой неделе" доски "Текущая"
-* `assistant.trello.boards.current.columns.week.limit`, целое число &mdash; максимальное число карточек в столбце "На этой неделе" доски "Текущая"
 * `assistant.trello.boards.current.columns.tomorrow.id`, строка &mdash; идентификатор столбца "Завтра" доски "Текущая"
 * `assistant.trello.boards.current.columns.tomorrow.name`, строка &mdash; название столбца "Завтра" доски "Текущая"
-* `assistant.trello.boards.current.columns.tomorrow.limit`, целое число &mdash; максимальное число карточек в столбце "Завтра" доски "Текущая"
 * `assistant.trello.boards.current.columns.today.id`, строка &mdash; идентификатор столбца "Сегодня" доски "Текущая"
 * `assistant.trello.boards.current.columns.today.name`, строка &mdash; название столбца "Сегодня" доски "Текущая"
-* `assistant.trello.boards.current.columns.today.limit`, целое число &mdash; максимальное число карточек в столбце "Сегодня" доски "Текущая"
 * `assistant.trello.boards.current.columns.inProgress.id`, строка &mdash; идентификатор столбца "В процессе" доски "Текущая"
 * `assistant.trello.boards.current.columns.inProgress.name`, строка &mdash; название столбца "В процессе" доски "Текущая"
-* `assistant.trello.boards.current.columns.inProgress.limit`, целое число &mdash; максимальное число карточек в столбце "В процессе" доски "Текущая"
 * `assistant.trello.boards.current.columns.delegated.id`, строка &mdash; идентификатор столбца "Делегировано" доски "Текущая"
 * `assistant.trello.boards.current.columns.delegated.name`, строка &mdash; название столбца "Делегировано" доски "Текущая"
-* `assistant.trello.boards.current.columns.delegated.limit`, целое число &mdash; максимальное число карточек в столбце "Делегировано" доски "Текущая"
 * `assistant.trello.boards.current.columns.done.id`, строка &mdash; идентификатор столбца "Сделано" доски "Текущая"
 * `assistant.trello.boards.current.columns.done.name`, строка &mdash; название столбца "Сделано" доски "Текущая"
-* `assistant.trello.boards.current.columns.done.limit`, целое число &mdash; максимальное число карточек в столбце "Сделано" доски "Текущая"
 * `assistant.trello.boards.next.columns.todo.id`, строка &mdash; идентификатор столбца "Сделать" доски "Следующая"
 * `assistant.trello.boards.next.columns.todo.name`, строка &mdash; название столбца "Сделать" доски "Следующая"
-* `assistant.trello.boards.next.columns.todo.limit`, целое число &mdash; максимальное число карточек в столбце "Сделать" доски "Следующая"
 * `assistant.trello.boards.next.columns.done.id`, строка &mdash; идентификатор столбца "Сделано" доски "Следующая"
 * `assistant.trello.boards.next.columns.done.name`, строка &mdash; название столбца "Сделано" доски "Следующая"
-* `assistant.trello.boards.next.columns.done.limit`, целое число &mdash; максимальное число карточек в столбце "Сделано" доски "Следующая"
 * `assistant.server.host`, строка &mdash; хост сервера
 * `assistant.server.port`, целое число &mdash; порт сервера
 * `assistant.db.url`, строка &mdash; JDBC-урл для подключения к PostgreSQL
@@ -213,37 +203,30 @@ assistant {
           todo {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Сделать"
-            limit=217
           }
           week {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="На этой неделе"
-            limit=49
           }
           tomorrow {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Завтра"
-            limit=7
           }
           today {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Сегодня"
-            limit=7
           }
           inProgress {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="В процессе"
-            limit=2
           }
           delegated {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Делегировано"
-            limit=14
           }
           done {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Сделано"
-            limit=217
           }
         }
       }
@@ -253,18 +236,13 @@ assistant {
           todo {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Сделать"
-            limit=2562
           }
           done {
             id="xxxxxxxxxxxxxxxxxxxxxxxx"
             name="Сделано"
-            limit=2562
           }
         }
       }
-    }
-    messages {
-      listLimitReached="Не удалось переместить карточку в столбец \"LIST_NAME\". Столбец \"LIST_NAME\" уже содержит LIMIT или больше карточек"
     }
   }
   server {
