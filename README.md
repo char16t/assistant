@@ -138,13 +138,17 @@ The assistant is fully configured via a single file `reference.conf` (`src/main/
 
 Fill in all the fields:
 
-* `assistant.trello.timeZoneCorrection`,integer &mdash; correction of time relative to UTC. For UTC+3 time zone (Europe/Moscow) it will be `3`
+* `assistant.trello.timeZoneCorrection`, integer &mdash; correction of time relative to UTC. For UTC+3 time zone (Europe/Moscow) it will be `3`
 * `assistant.trello.users.assistant.id`, string &mdash; Assistant user ID
 * `assistant.trello.users.assistant.token`, string &mdash; token for the Assistant user
 * `assistant.trello.users.assistant.appKey`, string &mdash; application key for the Assistant user
 * `assistant.trello.users.owner.id`, string &mdash; personal user ID
 * `assistant.trello.users.owner.token`, string &mdash; personal user token
 * `assistant.trello.users.owner.appKey`, string &mdash; personal user's application key
+* `assistant.trello.limits.cardsPerDay`, integer &mdash; maximum number of cards per day
+* `assistant.trello.limits.cardsPerWeek`, integer &mdash; maximum number of cards per week
+* `assistant.trello.limits.cardsPerMonth`, integer &mdash; maximum number of cards per month
+* `assistant.trello.limits.cardsPerYear`, integer &mdash; maximum number of cards per year
 * `assistant.trello.boards.current.id`, string &mdash; ID of the "Current" board
 * `assistant.trello.boards.current.columns.todo.id`, string &mdash; ID of the "To Do" column of the "Current" board
 * `assistant.trello.boards.current.columns.todo.name`, string &mdash; name of the "To Do" column of the "Current" board
@@ -195,6 +199,12 @@ assistant {
             appKey="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             token="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         }
+    }
+    limits {
+        cardsPerDay=7
+        cardsPerWeek=49
+        cardsPerMonth=196
+        cardsPerYear=2352
     }
     boards {
       current {

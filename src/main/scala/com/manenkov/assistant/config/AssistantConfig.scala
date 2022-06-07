@@ -23,11 +23,13 @@ final case class NextBoardColumnsConfig(todo: NextTodoColumnConfig, done: NextDo
 final case class NextBoardConfig(id: String, columns: NextBoardColumnsConfig)
 final case class BoardsConfig(current: CurrentBoardConfig, next: NextBoardConfig)
 final case class TrelloUsersConfig(assistant: AssistantUserConfig, owner: OwnerUserConfig)
+final case class LimitsConfig(cardsPerDay: Int, cardsPerWeek: Int, cardsPerMonth: Int, cardsPerYear: Int)
 final case class AssistantUserConfig(id: String, appKey: String, token: String)
 final case class OwnerUserConfig(id: String, appKey: String, token: String)
 final case class TrelloConfig(
                                timeZoneCorrection: Integer,
                                users: TrelloUsersConfig,
+                               limits: LimitsConfig,
                                boards: BoardsConfig,
                              )
 final case class ServerConfig(host: String, port: Int)

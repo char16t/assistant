@@ -4,6 +4,7 @@ import io.circe.Decoder
 import io.circe.generic.semiauto._
 
 package object config {
+  implicit val limitsConfigDecoder: Decoder[LimitsConfig] = deriveDecoder
   implicit val todoColumnConfigDecoder: Decoder[TodoColumnConfig] = deriveDecoder
   implicit val WeekColumnConfigDecoder: Decoder[WeekColumnConfig] = deriveDecoder
   implicit val tomorrowColumnConfigDecoder: Decoder[TomorrowColumnConfig] = deriveDecoder

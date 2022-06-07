@@ -148,10 +148,10 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       val flowUtils = FlowUtils(
         timeZoneCorrection = conf.trello.timeZoneCorrection,
-        limitPerDay = 7,
-        limitPerWeek = 7 * 7,
-        limitPerMonth = 7 * 7 * 4,
-        limitPerYear = 7 * 7 * 4 * 12
+        limitPerDay = conf.trello.limits.cardsPerDay,
+        limitPerWeek = conf.trello.limits.cardsPerWeek,
+        limitPerMonth = conf.trello.limits.cardsPerMonth,
+        limitPerYear = conf.trello.limits.cardsPerYear
       )
       val cardsAsEvents = flowUtils.cardsToEvents(cards)
       val updatedCardsAsEvents = flowUtils.flow(cardsAsEvents)

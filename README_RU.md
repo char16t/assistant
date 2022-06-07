@@ -145,6 +145,10 @@ createdb assistant
 * `assistant.trello.users.owner.id`, строка &mdash; идентификатор личного пользователя
 * `assistant.trello.users.owner.token`, строка &mdash; токен личного пользователя
 * `assistant.trello.users.owner.appKey`, строка &mdash; ключ приложения личного пользователя
+* `assistant.trello.limits.cardsPerDay`, целое число &mdash; максимальное число карточек в день
+* `assistant.trello.limits.cardsPerWeek`, целое число &mdash; максимальное число карточек в неделю
+* `assistant.trello.limits.cardsPerMonth`, целое число &mdash; максимальное число карточек в месяц
+* `assistant.trello.limits.cardsPerYear`, целое число &mdash; максимальное число карточек в год
 * `assistant.trello.boards.current.id`, строка &mdash; идентификатор доски "Текущая"
 * `assistant.trello.boards.current.columns.todo.id`, строка &mdash; идентификатор столбца "Сделать" доски "Текущая"
 * `assistant.trello.boards.current.columns.todo.name`, строка &mdash; название столбца "Сделать" доски "Текущая"
@@ -195,6 +199,12 @@ assistant {
             appKey="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             token="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         }
+    }
+    limits {
+        cardsPerDay=7
+        cardsPerWeek=49
+        cardsPerMonth=196
+        cardsPerYear=2352
     }
     boards {
       current {
