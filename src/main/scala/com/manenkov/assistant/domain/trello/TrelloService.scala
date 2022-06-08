@@ -298,7 +298,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
     }
   }
 
-  private def commentCard(card: CardInternal, message: String): Unit = {
+  def commentCard(card: CardInternal, message: String): Unit = {
     import sttp.client3._
 
     val pathParams = Map[String, String](
