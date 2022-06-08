@@ -1,6 +1,6 @@
 organization := "com.manenkov"
 name := "assistant"
-version := "0.0.1-SNAPSHOT"
+version := "0.2.0-RC1"
 crossScalaVersions := Seq("2.12.15", "2.13.6")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
