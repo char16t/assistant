@@ -37,7 +37,7 @@ All actions are performed by the assistant user, so in the history of the action
 
 ## Overview
 
-The assistant is written in Scala, compiled into an executable JAR file and must be deployed on the server. Interaction with Trello takes place through the [REST API](https://developer.atlassian.com/cloud/trello/rest/) and [Webhooks](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/).
+Assistant is written in Scala, compiled into an executable JAR file and must be deployed on the server. Interaction with Trello takes place through the [REST API](https://developer.atlassian.com/cloud/trello/rest/) and [Webhooks](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/).
 
 ## Installation
 
