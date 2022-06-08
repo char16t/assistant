@@ -284,12 +284,13 @@ assistant {
 ```sh
 # Deploy
 scp target/scala-2.12/assistant-assembly-0.0.1-SNAPSHOT.jar user@yourserver.com:/root/assistant.jar
+scp reference.conf user@yourserver.com:/root/assistant.conf
 ```
 
 Запуск приложения:
 
 ```sh
-nohup java -jar assistant.jar &> assistant.log &
+nohup java -Dassistant.config=assistant.conf -jar assistant.jar &> assistant.log &
 ```
 
 Проверка, что приложение работает:

@@ -284,12 +284,13 @@ You can send the application to the server via scp:
 ```sh
 # Deploy
 scp target/scala-2.12/assistant-assembly-0.0.1-SNAPSHOT.jar user@yourserver.com:/root/assistant.jar
+scp reference.conf user@yourserver.com:/root/assistant.conf
 ```
 
 Launching the application:
 
 ```sh
-nohup java -jar assistant.jar &> assistant.log &
+nohup java -Dassistant.config=assistant.conf -jar assistant.jar &> assistant.log &
 ```
 
 Checking that the app is working:
