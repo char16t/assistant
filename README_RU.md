@@ -321,7 +321,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
   "key": "<APP KEY>",
   "callbackURL": "http://yourserver.com:8080/api/trello/receive_webhook",
   "idModel":"<CURRENT BOARD ID>",
-  "description": "Assistant's Webhook for Daily board"
+  "description": "Assistant Webhook for Daily board"
 }'
 ```
 
@@ -330,7 +330,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
 ```json
 {
   "id": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "description": "Assistant's Webhook for Daily board",
+  "description": "Assistant Webhook for Daily board",
   "idModel": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "callbackURL": "http://assistant.manenkov.com:8080/api/trello/receive_webhook",
   "active": true,
@@ -348,7 +348,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
   "key": "<APP KEY>",
   "callbackURL": "http://yourserver.com:8080/api/trello/receive_webhook",
   "idModel":"<NEXT BOARD ID>",
-  "description": "Assistant's Webhook for Daily Next board"
+  "description": "Assistant Webhook for Daily Next board"
 }'
 ```
 
@@ -357,7 +357,7 @@ https://api.trello.com/1/tokens/<TOKEN>/webhooks/ \
 ```json
 {
   "id": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "description": "Assistant's Webhook for Daily Next board",
+  "description": "Assistant Webhook for Daily Next board",
   "idModel": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "callbackURL": "http://assistant.manenkov.com:8080/api/trello/receive_webhook",
   "active": true,
