@@ -114,10 +114,12 @@ In your personal Trello account you will need to create two boards "Current" and
 1. Log in to your personal Trello account
 2. Create a "Current" board
 3. In the "Current" board create the columns "To Do", "This week", "Tomorrow", "Today", "In progress", "Delegated", "Done"
-4. Add an Assistant user to the "Current" board with normal rights
-5. Create a "Next" board
-6. In the "Next" board create the "To Do" and "Done" columns
-7. Add an Assistant user to the "Next" board with normal rights
+4. Create a "pin" grey label on "Current" board (create card, then create label, then delete card)
+5. Add an Assistant user to the "Current" board with normal rights
+6. Create a "Next" board
+7. In the "Next" board create the "To Do" and "Done" columns
+8. Create a "pin" grey label on "Next" board (create card, then create label, then delete card)
+9. Add an Assistant user to the "Next" board with normal rights
 
 #### REST API keys
 
