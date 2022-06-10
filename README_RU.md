@@ -149,6 +149,7 @@ createdb assistant
 * `assistant.trello.limits.cardsPerWeek`, целое число &mdash; максимальное число карточек в неделю
 * `assistant.trello.limits.cardsPerMonth`, целое число &mdash; максимальное число карточек в месяц
 * `assistant.trello.limits.cardsPerYear`, целое число &mdash; максимальное число карточек в год
+* `assistant.trello.labels.pin.name`, строка &mdash; имя метки "закреплено"
 * `assistant.trello.boards.current.id`, строка &mdash; идентификатор доски "Текущая"
 * `assistant.trello.boards.current.columns.todo.id`, строка &mdash; идентификатор столбца "Сделать" доски "Текущая"
 * `assistant.trello.boards.current.columns.todo.name`, строка &mdash; название столбца "Сделать" доски "Текущая"
@@ -205,6 +206,11 @@ assistant {
         cardsPerWeek=49
         cardsPerMonth=196
         cardsPerYear=2352
+    }
+    labels {
+      pin {
+        name="закреплено"
+      }
     }
     boards {
       current {

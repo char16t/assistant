@@ -149,6 +149,7 @@ Fill in all the fields:
 * `assistant.trello.limits.cardsPerWeek`, integer &mdash; maximum number of cards per week
 * `assistant.trello.limits.cardsPerMonth`, integer &mdash; maximum number of cards per month
 * `assistant.trello.limits.cardsPerYear`, integer &mdash; maximum number of cards per year
+* `assistant.trello.labels.pin.name`, string &mdash; "pin" label name
 * `assistant.trello.boards.current.id`, string &mdash; ID of the "Current" board
 * `assistant.trello.boards.current.columns.todo.id`, string &mdash; ID of the "To Do" column of the "Current" board
 * `assistant.trello.boards.current.columns.todo.name`, string &mdash; name of the "To Do" column of the "Current" board
@@ -205,6 +206,11 @@ assistant {
         cardsPerWeek=49
         cardsPerMonth=196
         cardsPerYear=2352
+    }
+    labels {
+      pin {
+        name="pin"
+      }
     }
     boards {
       current {
