@@ -9,10 +9,13 @@ import sttp.client3.quick.backend
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import scala.util.{Try, Success, Failure}
 
 class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: AssistantConfig) {
 
   implicit val customConfig: Configuration = Configuration.default.withDefaults
+
+  implicit val localDateTimeOrdering: Ordering[LocalDateTime] = Ordering.by(c => Timestamp.valueOf(c).toInstant)
 
   def hello(): F[EntityModel] = trelloRepo.hello()
 
@@ -105,11 +108,22 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       // update or create card
       case "createCard" | "updateCard" if isProcessAllowed =>
-        organizeCards2()
+        applyFlowAlgorithm()
         val uri = uri"https://api.trello.com/1/cards/${webhook.action.data.card.get.id}?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
         val request = basicRequest.get(uri).response(asJson[Card])
         request.send(backend).body.toOption match {
-          case Some(card) => Seq(card)
+          case Some(card) =>
+            // get all cards
+            //import sttp.client3._
+            val getCurrentCardsUri = uri"https://api.trello.com/1/boards/${conf.trello.boards.current.id}/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
+            val currentBoardCardsRequest = basicRequest.get(getCurrentCardsUri).response(asJson[List[Card]])
+            val currentBoardResponse = currentBoardCardsRequest.send(backend)
+            val getNextCardsUri = uri"https://api.trello.com/1/boards/${conf.trello.boards.next.id}/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
+            val nextBoardCardsRequest = basicRequest.get(getNextCardsUri).response(asJson[List[Card]])
+            val nextBoardCardsResponse = nextBoardCardsRequest.send(backend)
+            val allCards = Seq(currentBoardResponse.body.toOption, nextBoardCardsResponse.body.toOption).flatten.flatten
+            allCards
+
           case None => Seq()
         }
 
@@ -119,7 +133,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
     cards
   }
 
-  private def organizeCards2(): Unit = {
+  private def applyFlowAlgorithm(): Unit = {
       import io.circe.generic.auto._
       import sttp.client3._
       import sttp.client3.circe._
@@ -131,7 +145,6 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         Seq(response.body.toOption).flatten.flatten
       }
 
-      implicit val localDateTimeOrdering: Ordering[LocalDateTime] = Ordering.by(c => Timestamp.valueOf(c).toInstant)
       val cards = Seq(
         conf.trello.boards.current.columns.delegated.id,
         conf.trello.boards.current.columns.inProgress.id,
@@ -146,13 +159,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         }
       )
 
-      val flowUtils = FlowUtils(
-        timeZoneCorrection = conf.trello.timeZoneCorrection,
-        limitPerDay = conf.trello.limits.cardsPerDay,
-        limitPerWeek = conf.trello.limits.cardsPerWeek,
-        limitPerMonth = conf.trello.limits.cardsPerMonth,
-        limitPerYear = conf.trello.limits.cardsPerYear
-      )
+      val flowUtils = FlowUtils(conf)
       val cardsAsEvents = flowUtils.cardsToEvents(cards)
       val updatedCardsAsEvents = flowUtils.flow(cardsAsEvents)
       val diff = flowUtils.diff(cardsAsEvents, updatedCardsAsEvents)
@@ -167,7 +174,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
       }
 
       println(
-        s"""(organizeCards2)
+        s"""(applyFlowAlgorithm)
            |=================
            ||     BEFORE    |
            |=================
@@ -193,7 +200,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
       import sttp.client3._
       import sttp.client3.circe._
 
-      organizeCards2()
+      applyFlowAlgorithm()
 
       val getCurrentCardsUri = uri"https://api.trello.com/1/boards/${conf.trello.boards.current.id}/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
       val request = basicRequest.get(getCurrentCardsUri).response(asJson[List[Card]])
@@ -212,15 +219,23 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
   private def processCards(cardsToProcess: Seq[Card]): Unit = {
 
-    cardToCardInternal(cardsToProcess).foreach({
+    val cards = cardToCardInternal(cardsToProcess)
+    val maxDueDatesPerColumns = cards
+      .groupBy(_.idList)
+      .mapValues(lst => Try(lst.filter(_.due.isDefined).maxBy(_.due.get).due) match {
+        case Success(due) => due.get
+        case Failure(_) => LocalDateTime.MIN
+      })
+
+    cards.foreach({
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.todo.id =>
-        updateCard(card, CardChanges (due = Option(dateUtils.thisMonthMax())), silent = true, asOwner = false)
+        updateCard(card, CardChanges (due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.todo.id, dateUtils.thisMonthMax()))), silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.week.id =>
-        updateCard(card, CardChanges(due = Option(dateUtils.thisWeekMax())), silent = true, asOwner = false)
+        updateCard(card, CardChanges(due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.week.id, dateUtils.thisWeekMax()))), silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.tomorrow.id =>
-        updateCard(card, CardChanges(due = Option(dateUtils.tomorrowMax())), silent = true, asOwner = false)
+        updateCard(card, CardChanges(due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.tomorrow.id, dateUtils.tomorrowMax()))), silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.today.id =>
-        updateCard(card, CardChanges(due = Option(dateUtils.todayMax())), silent = true, asOwner = false)
+        updateCard(card, CardChanges(due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.today.id, dateUtils.todayMax()))), silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.inProgress.id =>
         updateCard(card, CardChanges(due = Option(dateUtils.todayMax())), silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.delegated.id =>
@@ -232,7 +247,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
       case _ =>
     })
 
-    cardToCardInternal(cardsToProcess).foreach({
+    cards.foreach({
       // Not assigned cards
       case card if card.idMembers.isEmpty =>
         updateCard(card, CardChanges(idMembers = Option(List(conf.trello.users.owner.id))), silent = true, asOwner = true)
@@ -241,7 +256,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
       case _ =>
     })
 
-    cardToCardInternal(cardsToProcess).foreach {
+    cards.foreach {
 
       // Move done cards to Done column
       case card if card.dueComplete && card.idList != conf.trello.boards.current.columns.done.id =>
