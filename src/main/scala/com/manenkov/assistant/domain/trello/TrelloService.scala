@@ -112,7 +112,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         val uri = uri"https://api.trello.com/1/cards/${webhook.action.data.card.get.id}?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
         val request = basicRequest.get(uri).response(asJson[Card])
         request.send(backend).body.toOption match {
-          case Some(card) =>
+          case Some(_) =>
             // get all cards
             //import sttp.client3._
             val getCurrentCardsUri = uri"https://api.trello.com/1/boards/${conf.trello.boards.current.id}/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
