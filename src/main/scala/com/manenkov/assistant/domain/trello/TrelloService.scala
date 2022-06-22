@@ -114,7 +114,6 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         request.send(backend).body.toOption match {
           case Some(_) =>
             // get all cards
-            //import sttp.client3._
             val getCurrentCardsUri = uri"https://api.trello.com/1/boards/${conf.trello.boards.current.id}/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
             val currentBoardCardsRequest = basicRequest.get(getCurrentCardsUri).response(asJson[List[Card]])
             val currentBoardResponse = currentBoardCardsRequest.send(backend)
@@ -222,20 +221,35 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
     val cards = cardToCardInternal(cardsToProcess)
     val maxDueDatesPerColumns = cards
       .groupBy(_.idList)
-      .mapValues(lst => Try(lst.filter(_.due.isDefined).maxBy(_.due.get).due) match {
-        case Success(due) => due.get
-        case Failure(_) => LocalDateTime.MIN
-      })
+      .mapValues(lst => Try(lst.filter(_.due.isDefined).maxBy(_.due.get).due))
+    def getDue(columnId: String, orElse: LocalDateTime): LocalDateTime = {
+      maxDueDatesPerColumns.get(columnId) match {
+        case Some(tryType) => tryType match {
+          case Success(due) => due.get
+          case Failure(_) => orElse
+        }
+        case None => orElse
+      }
+    }
 
     cards.foreach({
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.todo.id =>
-        updateCard(card, CardChanges (due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.todo.id, dateUtils.thisMonthMax()))), silent = true, asOwner = false)
+        updateCard(card,
+          CardChanges (due = Option(getDue(conf.trello.boards.current.columns.todo.id, dateUtils.thisMonthMax()))),
+          silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.week.id =>
-        updateCard(card, CardChanges(due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.week.id, dateUtils.thisWeekMax()))), silent = true, asOwner = false)
+        updateCard(
+          card,
+          CardChanges(due = Option(getDue(conf.trello.boards.current.columns.week.id, dateUtils.thisWeekMax()))),
+          silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.tomorrow.id =>
-        updateCard(card, CardChanges(due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.tomorrow.id, dateUtils.tomorrowMax()))), silent = true, asOwner = false)
+        updateCard(card,
+          CardChanges(due = Option(getDue(conf.trello.boards.current.columns.tomorrow.id, dateUtils.tomorrowMax()))),
+          silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.today.id =>
-        updateCard(card, CardChanges(due = Option(maxDueDatesPerColumns.getOrElse(conf.trello.boards.current.columns.today.id, dateUtils.todayMax()))), silent = true, asOwner = false)
+        updateCard(card,
+          CardChanges(due = Option(getDue(conf.trello.boards.current.columns.today.id, dateUtils.todayMax()))),
+          silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.inProgress.id =>
         updateCard(card, CardChanges(due = Option(dateUtils.todayMax())), silent = true, asOwner = false)
       case card if card.due.isEmpty && card.idList == conf.trello.boards.current.columns.delegated.id =>
