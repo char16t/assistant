@@ -2,14 +2,14 @@ package com.manenkov.assistant.domain.trello
 
 import cats.effect.Sync
 import com.manenkov.assistant.config.AssistantConfig
-import com.manenkov.flow.ChangeDue
+import com.manenkov.flow.{ChangeDue, ChangeOrder}
 import io.circe.generic.extras.Configuration
 import sttp.client3.quick.backend
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import scala.util.{Try, Success, Failure}
+import scala.util.{Failure, Success, Try}
 
 class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: AssistantConfig) {
 
@@ -171,6 +171,39 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
           case _ => // do nothing
         }
       }
+
+    // Re-order cards
+    case class ChangeOrderPos(id: String, beforePos: Double, afterPos: Double)
+    val diffs: Seq[ChangeOrderPos] = diff map {
+      case ChangeOrder(id, from, to) => Some(ChangeOrderPos(id, cards(from).pos, cards(to).pos))
+      case _ => None
+    } filter(_.isDefined) map (_.get) sortBy(- _.afterPos)
+
+    diffs.map(_.id).foldLeft(cards)((events, id) => {
+      val event = events.filter(_.id == id).head
+      val diff = diffs.filter(_.id == id).head
+
+      val newOrd: Double = diff.afterPos match {
+        case pos if pos <= events.head.pos => events.head.pos / 2.0
+        case pos if pos >= events.last.pos => events.last.pos + 16384
+        case pos =>
+          println(s"\npos = $pos")
+          println(s"events = $events")
+
+          val prevEvents = events.takeWhile(pos > _.pos)
+          println(s"prevEvents = $prevEvents")
+          val prev = prevEvents.last.pos
+          println(s"prev = $prev")
+          (prev + pos) / 2.0
+      }
+
+      events map {
+        case evt if evt == event =>
+          updateCard(event, CardChanges(pos = Some(newOrd.toString)), silent = true, asOwner = false)
+          event.copy(pos = newOrd)
+        case evt => evt
+      } sortBy(_.pos)
+    })
 
       println(
         s"""(applyFlowAlgorithm)
