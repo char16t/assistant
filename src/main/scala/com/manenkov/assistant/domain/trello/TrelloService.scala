@@ -199,7 +199,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       events map {
         case evt if evt == event =>
-          updateCard(event, CardChanges(pos = Some(newOrd.toString)), silent = true, asOwner = false)
+          updateCard(event, CardChanges(pos = Some(newOrd.toString)), silent = false, asOwner = false)
           event.copy(pos = newOrd)
         case evt => evt
       } sortBy(_.pos)
