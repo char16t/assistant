@@ -1,4 +1,4 @@
-v0.2.0 (in development)
+v0.2.0 (26.06.2022)
 
  - New algorithm to automatically reschedule events in the flow depending on the constraints at different time intervals
 

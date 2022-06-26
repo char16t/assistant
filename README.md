@@ -283,6 +283,14 @@ assistant {
 ### Building Assistant
 
 ```sh
+# Get source code
+git clone https://github.com/char16t/assistant
+git clone https://github.com/char16t/flow
+cd flow
+sbt +publishLocal
+cd ..
+cd assistant
+
 # Build
 ./sbtx assembly
 ```
