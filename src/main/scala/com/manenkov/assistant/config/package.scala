@@ -4,6 +4,9 @@ import io.circe.Decoder
 import io.circe.generic.semiauto._
 
 package object config {
+  implicit val pinLabelConfigDecoder: Decoder[PinLabelConfig] = deriveDecoder
+  implicit val labelsConfigDecoder: Decoder[LabelsConfig] = deriveDecoder
+  implicit val limitsConfigDecoder: Decoder[LimitsConfig] = deriveDecoder
   implicit val todoColumnConfigDecoder: Decoder[TodoColumnConfig] = deriveDecoder
   implicit val WeekColumnConfigDecoder: Decoder[WeekColumnConfig] = deriveDecoder
   implicit val tomorrowColumnConfigDecoder: Decoder[TomorrowColumnConfig] = deriveDecoder
@@ -14,7 +17,6 @@ package object config {
   implicit val nextTodoColumnConfigDecoder: Decoder[NextTodoColumnConfig] = deriveDecoder
   implicit val nextDoneColumnConfigDecoder: Decoder[NextDoneColumnConfig] = deriveDecoder
   implicit val assistantConfigDecoder: Decoder[AssistantConfig] = deriveDecoder
-  implicit val messagesConfigDecoder: Decoder[MessagesConfig] = deriveDecoder
   implicit val assistantUserConfigDecoder: Decoder[AssistantUserConfig] = deriveDecoder
   implicit val ownerUserConfigDecoder: Decoder[OwnerUserConfig] = deriveDecoder
   implicit val trelloUsersConfigDecoder: Decoder[TrelloUsersConfig] = deriveDecoder

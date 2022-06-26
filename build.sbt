@@ -1,6 +1,6 @@
 organization := "com.manenkov"
 name := "assistant"
-version := "0.0.1-SNAPSHOT"
+version := "0.2.0"
 crossScalaVersions := Seq("2.12.15", "2.13.6")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -23,6 +23,7 @@ val FlywayVersion = "8.5.4"
 val SttpVersion = "3.5.1"
 
 libraryDependencies ++= Seq(
+  "com.manenkov" %% "flow" % "0.1.0-RC4",
   "org.typelevel" %% "cats-core" % CatsVersion,
   "io.circe" %% "circe-generic" % CirceVersion,
   "io.circe" %% "circe-literal" % CirceVersion,

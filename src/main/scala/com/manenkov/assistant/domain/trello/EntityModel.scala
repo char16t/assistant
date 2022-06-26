@@ -5,7 +5,8 @@ import java.time.LocalDateTime
 case class CardTechInfo(pin: Boolean = true, testCreatedAt: String = LocalDateTime.now().toString)
 
 case class EntityModel(name: String)
-case class Card(id: String, name: String, desc: String, pos: Double, due: Option[String], idList: String, idBoard: String, dueComplete: Boolean, idMembers: List[String])
+case class Label(id: String, idBoard: String, name: String, color: Option[String])
+case class Card(id: String, name: String, desc: String, pos: Double, due: Option[String], idList: String, idBoard: String, dueComplete: Boolean, idMembers: List[String], labels: List[Label], idLabels: List[String])
 case class CardInternal(
                          id: String,
                          desc: String,
@@ -16,7 +17,9 @@ case class CardInternal(
                          pos: Double,
                          dueComplete: Boolean,
                          idMembers: List[String],
-                         techInfo: CardTechInfo
+                         labels: List[Label],
+                         idLabels: List[String],
+                         techInfo: CardTechInfo,
                        )
 case class CardChanges(
                         boardId: Option[String] = None,
