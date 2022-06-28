@@ -9,7 +9,6 @@ import sttp.client3.quick.backend
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: AssistantConfig) {
@@ -148,7 +147,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
             |==========================
             | TrelloService::applyFlowAlgorithm()::getCardsFromList($idList)
             |==========================
-            |${res.foldLeft("")((_, card) => card.toString + "\n")}
+            |${res.foldLeft("")((str, card) => str + card.copy(desc = "").toString + "\n")}
             |""".stripMargin)
         res
       }
@@ -165,7 +164,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         (list, idList) => {
           list ++ cardToCardInternal(getCardsFromList(idList)).sortWith((a, b) => {
             val res = Ordering[Option[LocalDateTime]].lt(a.due, b.due)
-            println(s"getCardsFromList($idList).sortWith($a, $b) = $res")
+            println(s"getCardsFromList($idList).sortWith(${a.copy(desc = "")}, ${b.copy(desc = "")}) = $res")
             res
           })
         }
@@ -201,10 +200,10 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         case pos if pos >= events.last.pos => events.last.pos + 16384
         case pos =>
           println(s"\npos = $pos")
-          println(s"events = $events")
+          println(s"events = ${events.map(_.copy(desc = ""))}")
 
           val prevEvents = events.takeWhile(pos > _.pos)
-          println(s"prevEvents = $prevEvents")
+          println(s"prevEvents = ${prevEvents.map(_.copy(desc = ""))}")
           val prev = prevEvents.last.pos
           println(s"prev = $prev")
           (prev + pos) / 2.0
