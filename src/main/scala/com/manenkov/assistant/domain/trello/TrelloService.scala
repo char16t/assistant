@@ -9,6 +9,7 @@ import sttp.client3.quick.backend
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: AssistantConfig) {
@@ -141,7 +142,15 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         val url = uri"https://api.trello.com/1/lists/$idList/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
         val request = basicRequest.get(url).response(asJson[List[Card]])
         val response = request.send(backend)
-        Seq(response.body.toOption).flatten.flatten
+        val res = Seq(response.body.toOption).flatten.flatten
+        println(
+          s"""
+            |==========================
+            | TrelloService::applyFlowAlgorithm()::getCardsFromList($idList)
+            |==========================
+            |${res.foldLeft("")((_, card) => card.toString + "\n")}
+            |""".stripMargin)
+        res
       }
 
       val cards = Seq(
@@ -154,7 +163,11 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
         conf.trello.boards.next.columns.todo.id,
       ).foldLeft(Seq[CardInternal]())(
         (list, idList) => {
-          list ++ cardToCardInternal(getCardsFromList(idList)).sortWith((a, b) => Ordering[Option[LocalDateTime]].lt(a.due, b.due))
+          list ++ cardToCardInternal(getCardsFromList(idList)).sortWith((a, b) => {
+            val res = Ordering[Option[LocalDateTime]].lt(a.due, b.due)
+            println(s"getCardsFromList($idList).sortWith($a, $b) = $res")
+            res
+          })
         }
       )
 
