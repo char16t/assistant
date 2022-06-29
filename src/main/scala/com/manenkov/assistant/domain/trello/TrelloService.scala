@@ -108,7 +108,6 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       // update or create card
       case "createCard" | "updateCard" if isProcessAllowed =>
-        applyFlowAlgorithm()
         val uri = uri"https://api.trello.com/1/cards/${webhook.action.data.card.get.id}?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
         val request = basicRequest.get(uri).response(asJson[Card])
         request.send(backend).body.toOption match {
@@ -128,11 +127,12 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       case _ => Seq()
     }
-    processCards(cards)
+    processCards(cardToCardInternal(cards))
+    applyFlowAlgorithm()
     cards
   }
 
-  private def applyFlowAlgorithm(): Unit = {
+  def applyFlowAlgorithm(): Unit = {
       import io.circe.generic.auto._
       import sttp.client3._
       import sttp.client3.circe._
@@ -180,6 +180,7 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
           case ChangeDue(id, _, to) =>
             val card = cards.filter(_.id == id).head
             updateCard(card, CardChanges(due = Some(to)), silent = true, asOwner = false)
+            processCards(Seq(card))
           case _ => // do nothing
         }
       }
@@ -244,8 +245,6 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
       import sttp.client3._
       import sttp.client3.circe._
 
-      applyFlowAlgorithm()
-
       val getCurrentCardsUri = uri"https://api.trello.com/1/boards/${conf.trello.boards.current.id}/cards?key=${conf.trello.users.assistant.appKey}&token=${conf.trello.users.assistant.token}"
       val request = basicRequest.get(getCurrentCardsUri).response(asJson[List[Card]])
       val response = request.send(backend)
@@ -256,14 +255,14 @@ class TrelloService[F[_]](trelloRepo: TrelloRepositoryAlgebra[F], conf: Assistan
 
       val allCards = Seq(response.body.toOption, response2.body.toOption).flatten.flatten
 
-      processCards(allCards)
+      processCards(cardToCardInternal(allCards))
+      applyFlowAlgorithm()
 
       allCards
     }
 
-  private def processCards(cardsToProcess: Seq[Card]): Unit = {
+  private def processCards(cards: Seq[CardInternal]): Unit = {
 
-    val cards = cardToCardInternal(cardsToProcess)
     val maxDueDatesPerColumns = cards
       .groupBy(_.idList)
       .mapValues(lst => Try(lst.filter(_.due.isDefined).maxBy(_.due.get).due))

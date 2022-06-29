@@ -12,47 +12,47 @@ case class DateUtils(timeZoneCorrection: Integer) {
     dt.minus(timeZoneCorrection.toLong, ChronoUnit.HOURS)
 
   def todayMin(): LocalDateTime = {
-    minusTimezoneCorrection(LocalDateTime.now().`with`(LocalTime.MIN))
+    minusTimezoneCorrection(LocalDateTime.now().`with`(LocalTime.of(0, 0)))
   }
 
   def todayMax(): LocalDateTime = {
-    minusTimezoneCorrection(LocalDateTime.now().`with`(LocalTime.MAX))
+    minusTimezoneCorrection(LocalDateTime.now().`with`(LocalTime.of(23, 59)))
   }
 
   def tomorrowMin(): LocalDateTime =
-    minusTimezoneCorrection(LocalDateTime.now().plus(1, ChronoUnit.DAYS).`with`(LocalTime.MIN))
+    minusTimezoneCorrection(LocalDateTime.now().plus(1, ChronoUnit.DAYS).`with`(LocalTime.of(0, 0)))
 
   def tomorrowMax(): LocalDateTime =
-    minusTimezoneCorrection(LocalDateTime.now().plus(1, ChronoUnit.DAYS).`with`(LocalTime.MAX))
+    minusTimezoneCorrection(LocalDateTime.now().plus(1, ChronoUnit.DAYS).`with`(LocalTime.of(23, 59)))
 
   def thisWeekMin(): LocalDateTime = {
     val now = LocalDateTime.now()
     if (now.getDayOfWeek == DayOfWeek.MONDAY)
-      minusTimezoneCorrection(now.`with`(LocalTime.MIN))
+      minusTimezoneCorrection(now.`with`(LocalTime.of(0, 0)))
     else
-      minusTimezoneCorrection(now.`with`(TemporalAdjusters.previous(DayOfWeek.MONDAY)).`with`(LocalTime.MIN))
+      minusTimezoneCorrection(now.`with`(TemporalAdjusters.previous(DayOfWeek.MONDAY)).`with`(LocalTime.of(0, 0)))
   }
 
   def thisWeekMax(): LocalDateTime = {
     val now = LocalDateTime.now()
     if (now.getDayOfWeek == DayOfWeek.SUNDAY)
-      minusTimezoneCorrection(now.`with`(LocalTime.MAX))
+      minusTimezoneCorrection(now.`with`(LocalTime.of(23, 59)))
     else
-      minusTimezoneCorrection(now.`with`(TemporalAdjusters.next(DayOfWeek.SUNDAY)).`with`(LocalTime.MAX))
+      minusTimezoneCorrection(now.`with`(TemporalAdjusters.next(DayOfWeek.SUNDAY)).`with`(LocalTime.of(23, 59)))
   }
 
   def thisMonthMin(): LocalDateTime = {
     val now = LocalDateTime.now()
-    minusTimezoneCorrection(now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.MIN))
+    minusTimezoneCorrection(now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.of(0, 0)))
   }
 
   def thisMonthMax(): LocalDateTime = {
     val now = LocalDateTime.now()
-    minusTimezoneCorrection(now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.MAX))
+    minusTimezoneCorrection(now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.of(23, 59)))
   }
 
   def isOverdue(date: LocalDateTime): Boolean = {
-    val now = plusTimezoneCorrection(LocalDateTime.now()).`with`(LocalTime.MIN)
+    val now = plusTimezoneCorrection(LocalDateTime.now()).`with`(LocalTime.of(0, 0))
     date.isBefore(now)
   }
 
@@ -73,31 +73,31 @@ case class DateUtils(timeZoneCorrection: Integer) {
   def onThisWeek(date: LocalDateTime): Boolean = {
     val now = plusTimezoneCorrection(LocalDateTime.now())
     val mon = if (now.getDayOfWeek == DayOfWeek.MONDAY)
-      now.`with`(LocalTime.MIN) else now.`with`(TemporalAdjusters.previous(DayOfWeek.MONDAY))
+      now.`with`(LocalTime.of(0, 0)) else now.`with`(TemporalAdjusters.previous(DayOfWeek.MONDAY))
     val sun =
       if (now.getDayOfWeek == DayOfWeek.SUNDAY)
-        now.`with`(LocalTime.MAX)
+        now.`with`(LocalTime.of(23, 59))
       else
-        now.`with`(TemporalAdjusters.next(DayOfWeek.SUNDAY)).`with`(LocalTime.MAX)
+        now.`with`(TemporalAdjusters.next(DayOfWeek.SUNDAY)).`with`(LocalTime.of(23, 59))
     date.isAfter(mon) && date.isBefore(sun)
   }
 
   def onPrevMonths(date: LocalDateTime): Boolean = {
     val now = plusTimezoneCorrection(LocalDateTime.now())
-    val firstDay = now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.MIN)
+    val firstDay = now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.of(0, 0))
     date.isBefore(firstDay)
   }
 
   def onThisMonth(date: LocalDateTime): Boolean = {
     val now = plusTimezoneCorrection(LocalDateTime.now())
-    val firstDay = now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.MIN)
-    val lastDay = now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.MAX)
+    val firstDay = now.`with`(TemporalAdjusters.firstDayOfMonth()).`with`(LocalTime.of(0, 0))
+    val lastDay = now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.of(23, 59))
     date.isAfter(firstDay) && date.isBefore(lastDay)
   }
 
   def onNextMonths(date: LocalDateTime): Boolean = {
     val now = plusTimezoneCorrection(LocalDateTime.now())
-    val lastDay = now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.MAX)
+    val lastDay = now.`with`(TemporalAdjusters.lastDayOfMonth()).`with`(LocalTime.of(23, 59))
     date.isAfter(lastDay)
   }
 }
